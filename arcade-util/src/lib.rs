@@ -1,6 +1,7 @@
 mod coords;
 mod directions;
 mod statuses;
+mod traits;
 
 pub use crate::coords::Coord2D;
 pub use crate::directions::{
@@ -12,3 +13,4 @@ pub use crate::statuses::{
     ArcadeError,
     GameStatus,
 };
+pub use crate::traits::Collidable;
