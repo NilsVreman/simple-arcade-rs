@@ -1,8 +1,10 @@
 // Status
+#[derive(Debug)]
 pub enum ArcadeStatus {
     Okay, Fail,
 }
 
+#[derive(Debug)]
 pub enum GameStatus {
     Running, GameOver,
 }

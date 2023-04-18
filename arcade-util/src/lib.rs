@@ -3,7 +3,10 @@ mod directions;
 mod statuses;
 mod traits;
 
-pub use crate::coords::Coord2D;
+pub use crate::coords::{
+    Coord2D,
+    box_generator,
+};
 pub use crate::directions::{
     Dir2D,
     Rot2D,
@@ -13,4 +16,7 @@ pub use crate::statuses::{
     ArcadeError,
     GameStatus,
 };
-pub use crate::traits::Collidable;
+pub use crate::traits::{
+    Collidable,
+    CoordConfiguration,
+};
