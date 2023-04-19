@@ -9,7 +9,7 @@ use arcade_util::{
 };
 
 pub struct Snake {
-    pub segments: Vec<Coord2D<i32>>,
+    segments: Vec<Coord2D<i32>>,
     direction: Dir2D,
     segments_to_add: VecDeque<Coord2D<i32>>,
 }

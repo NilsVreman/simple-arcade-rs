@@ -1,15 +1,24 @@
+use bevy::prelude::Component;
+
 use arcade_util::{Coord2D, CoordConfiguration, GameStatus, Collidable};
 use crate::snake::Snake;
 use crate::board::Board;
 
-pub struct SnakeGame {
+#[derive(Component)]
+pub struct SnakeState {
     snake: Snake,
     board: Board,
 }
 
-impl SnakeGame {
+impl Default for SnakeState {
+    fn default() -> Self {
+        SnakeState::new(10, 10)
+    }
+}
+
+impl SnakeState {
     pub fn new(width: i32, height: i32) -> Self {
-        SnakeGame {
+        SnakeState {
             snake: Snake::new(Coord2D(
                            width.checked_div(2).unwrap(),
                            height.checked_div(2).unwrap())),

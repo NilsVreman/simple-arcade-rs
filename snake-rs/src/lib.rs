@@ -1,6 +1,7 @@
 mod snake;
 mod board;
-mod game;
+mod state;
+mod plugin;
 
-pub use snake::Snake;
-pub use game::SnakeGame;
+pub use state::SnakeState;
+pub use plugin::SnakePlugin;
