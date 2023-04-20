@@ -1,90 +1,57 @@
-use std::collections::HashSet;
+use bevy::prelude::{Color, Component, Commands, Vec2, default, BuildChildren, Transform};
+use bevy::sprite::{SpriteBundle, Sprite};
 
-use arcade_util::{
-    Collidable,
-    CoordConfiguration,
-    Coord2D,
-    box_generator,
-};
+use crate::util::{TILE_SIZE, BOARD_SIZE, TILE_SPACING};
 
-pub struct Board {
-    height: i32,
-    width: i32,
-    boundary: HashSet<Coord2D<i32>>,
-    food_gen: FoodGenerator,
-}
+const BOARD_COLOR: Color = Color::rgb(0.86, 0.77, 0.6);
+const BOARD_COLOR_LIGHT: Color = Color::rgb(0.85, 0.74, 0.56);
+
+#[derive(Component)]
+pub struct Board;
 
 impl Board {
-    pub fn new(width: i32, height: i32) -> Self {
-        let boundary = box_generator(width, height);
-        Self {
-            width,
-            height,
-            boundary,
-            food_gen: FoodGenerator::new(height, width),
+    fn pos_to_physical(pos: u8) -> f32 {
+        pos as f32 * TILE_SIZE + (pos + 1) as f32 * TILE_SPACING
+    }
+
+    pub fn cell_pos_to_physical_pos(pos: u8) -> f32 {
+        let offset = -Self::pos_to_physical(BOARD_SIZE) / 2.0 + 0.5 * TILE_SIZE;
+        offset + Self::pos_to_physical(pos)
+    }
+}
+
+pub fn spawn_board(mut commands: Commands) {
+    commands.spawn(SpriteBundle {
+        sprite: Sprite {
+            color: BOARD_COLOR,
+            custom_size: Some(Vec2::new(
+                    Board::pos_to_physical(BOARD_SIZE),
+                    Board::pos_to_physical(BOARD_SIZE))),
+            ..default()
+        },
+        ..default()
+    })
+    .with_children(|builder| {
+        for y in 0..BOARD_SIZE {
+            for x in 0..BOARD_SIZE {
+                builder.spawn(SpriteBundle {
+                    sprite: Sprite {
+                        color: if (x+y) % 2 == 0 {
+                            BOARD_COLOR
+                        } else {
+                            BOARD_COLOR_LIGHT
+                        },
+                        custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(
+                                   Board::cell_pos_to_physical_pos(x),
+                                   Board::cell_pos_to_physical_pos(y),
+                                   1.0),
+                    ..default()
+                });
+            }
         }
-    }
-
-    pub fn food_coord(&self) -> Coord2D<i32> {
-        return self.food_gen.food_coord()
-    }
-
-    pub fn new_food(&mut self) -> Option<Coord2D<i32>> {
-        return self.food_gen.next()
-    }
-
-    pub fn get_width(&self) -> i32 {
-        return self.width
-    }
-
-    pub fn get_height(&self) -> i32 {
-        return self.height
-    }
-}
-
-impl Collidable<i32> for Board {
-    fn collides_with(&self, coord: &Coord2D<i32>) -> bool {
-        return coord.0 < 0
-            || coord.0 > self.width
-            || coord.1 < 0
-            || coord.1 > self.height;
-    }
-}
-
-impl CoordConfiguration<i32> for Board {
-    fn configuration(&self) -> HashSet<Coord2D<i32>> {
-        self.boundary.clone()
-    }
-}
-
-// Food Generator
-
-struct FoodGenerator {
-    width: i32,
-    height: i32,
-    food: Coord2D<i32>,
-}
-
-impl FoodGenerator {
-    fn new(width: i32, height: i32) -> Self {
-        Self {
-            width,
-            height,
-            food: Coord2D(15, 16),
-        }
-    }
-
-    fn food_coord(&self) -> Coord2D<i32> {
-        return self.food
-    }
-}
-
-impl Iterator for FoodGenerator {
-    type Item = Coord2D<i32>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let next_food = Coord2D(0, 2) + self.food;
-        let ret_food = std::mem::replace(&mut self.food, next_food);
-        return Some(ret_food)
-    }
+    })
+    .insert(Board);
 }

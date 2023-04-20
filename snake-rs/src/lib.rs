@@ -1,7 +1,3 @@
-mod snake;
-mod board;
-mod state;
-mod plugin;
-
-pub use state::SnakeState;
-pub use plugin::SnakePlugin;
+pub mod board;
+pub mod snake;
+pub mod util;

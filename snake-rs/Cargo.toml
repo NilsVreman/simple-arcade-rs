@@ -8,4 +8,4 @@ authors = ["Nils Vreman <nils.vreman@gmail.com>"]
 
 [dependencies]
 arcade-util = { path = "../arcade-util" }
-bevy = { version = "0.10", features = ["dynamic_linking"] }
+bevy = { workspace = true }

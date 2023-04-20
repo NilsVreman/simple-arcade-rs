@@ -5,7 +5,6 @@ mod traits;
 
 pub use crate::coords::{
     Coord2D,
-    box_generator,
 };
 pub use crate::directions::{
     Dir2D,

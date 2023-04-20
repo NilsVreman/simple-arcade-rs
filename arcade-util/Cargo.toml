@@ -7,3 +7,4 @@ authors = ["Nils Vreman <nils.vreman@gmail.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bevy = { workspace = true }

@@ -5,6 +5,9 @@ members = [
    "arcade-util",
 ]
 
+[workspace.dependencies]
+bevy = { version = "0.10", features = ["dynamic_linking"] }
+
 ## Enable a small amount of optimization in debug mode
 #[profile.dev]
 #opt-level = 1
