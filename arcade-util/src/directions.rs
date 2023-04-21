@@ -1,7 +1,9 @@
+use bevy::prelude::{Input, KeyCode};
+
 use super::coords::Coord2D;
 
 // Directions in 2D
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Dir2D {
     Up, Down, Left, Right,
 }
