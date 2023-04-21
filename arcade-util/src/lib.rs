@@ -11,9 +11,8 @@ pub use crate::directions::{
     Rot2D,
 };
 pub use crate::statuses::{
-    ArcadeStatus,
     ArcadeError,
-    GameStatus,
+    GameState,
 };
 pub use crate::traits::{
     Collidable,

@@ -1,3 +1,4 @@
+use arcade_util::Collidable;
 use bevy::prelude::{Color, Component, Commands, Vec2, default, BuildChildren, Transform};
 use bevy::sprite::{SpriteBundle, Sprite};
 
@@ -25,6 +26,19 @@ impl Board {
     pub fn cell_pos_to_physical_pos(&self, pos: i32) -> f32 {
         let offset = -self.physical_size / 2.0 + 0.5 * TILE_SIZE;
         offset + Self::pos_to_physical(pos)
+    }
+
+    pub fn get_size(&self) -> i32 {
+        self.size
+    }
+}
+
+impl Collidable<i32> for Board {
+    fn collides_with(&self, coord: &arcade_util::Coord2D<i32>) -> bool {
+        return coord.0 < 0
+            || coord.0 >= self.size
+            || coord.1 < 0
+            || coord.1 >= self.size
     }
 }
 

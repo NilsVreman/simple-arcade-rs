@@ -1,15 +1,15 @@
 use std::collections::VecDeque;
 
 use bevy::ecs::system::Command;
-use bevy::prelude::{Color, Resource, Commands, Res, Vec2, Transform, ResMut, Query, Entity, World, Input, KeyCode, With};
+use bevy::prelude::{Color, Resource, Commands, Res, Vec2, Transform, ResMut, Query, Entity, World, Input, KeyCode, With, EventWriter, NextState};
 use bevy::sprite::{SpriteBundle, Sprite};
 use bevy::time::{Time, Timer, TimerMode};
 use bevy::utils::default;
 
-use arcade_util::{Coord2D, CoordConfiguration, Dir2D};
+use arcade_util::{Coord2D, CoordConfiguration, Dir2D, Collidable, GameState};
 use crate::board::Board;
-use crate::food::Food;
-use crate::util::{TILE_SIZE, MIN_TIMER_DURATION, TICK_DURATION_MS};
+use crate::food::{Food, NewFoodEvent};
+use crate::util::{TILE_SIZE, MIN_TIMER_DURATION, TICK_DURATION_MS, GameCompletionEvent, GameOver};
 
 const SNAKE_COLOR: Color = Color::rgb(0.42, 0.63, 0.07);
 
@@ -158,11 +158,38 @@ pub fn rotate_snake(
 pub fn snake_eating(
     mut commands: Commands,
     mut snake: ResMut<Snake>,
-    food: Query<(Entity, &Coord2D<i32>), With<Food>>
+    food: Query<(Entity, &Coord2D<i32>), With<Food>>,
+    mut event: EventWriter<NewFoodEvent>,
 ) {
     let snake_head = snake.get_head();
     if let Some((entity, _)) = food.iter().find(|(_, &coord)| coord == snake_head) {
         commands.entity(entity).despawn(); // Despawn apple and add last element to tail
-        println!("Eating");
+        snake.grow();
+        commands.add(SpawnSnakeSegment(snake.get_old_tail()));
+        event.send(NewFoodEvent);
     }
 }
+
+pub fn snake_game_over(
+    mut commands: Commands,
+    snake: Res<Snake>,
+    query: Query<&Board>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    let board = query.single();
+    let snake_head = snake.configuration().next().unwrap();
+
+    if board.collides_with(snake_head)
+        || snake.configuration().skip(1).any(|c| c == snake_head)
+        || snake.configuration().count() == (board.get_size()*board.get_size()) as usize
+    {
+        next_state.set(GameState::Menu);
+    }
+}
+    //if board.collides_with(snake_head) {
+    //    event.send(GameCompletionEvent(GameOver::HitWall));
+    //} else if snake.configuration().any(|c| c == snake_head) {
+    //    event.send(GameCompletionEvent(GameOver::HitSnake));
+    //} else if snake.configuration().count() == (board.get_size()*board.get_size()) as usize {
+    //    event.send(GameCompletionEvent(GameOver::Win));
+    //}

@@ -1,12 +1,11 @@
-// Status
-#[derive(Debug)]
-pub enum ArcadeStatus {
-    Okay, Fail,
-}
+use bevy::prelude::States;
 
-#[derive(Debug)]
-pub enum GameStatus {
-    Running, GameOver,
+// Status
+#[derive(States, Default, Debug, Eq, Clone, Hash, PartialEq)]
+pub enum GameState {
+    Menu,
+    #[default]
+    Playing,
 }
 
 // Errors
