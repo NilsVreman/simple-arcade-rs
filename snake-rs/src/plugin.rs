@@ -35,6 +35,7 @@ impl Plugin for SnakePlugin {
                     snake_eating,
                     snake_game_over,
                 )
-                .in_set(OnUpdate(GameState::PlayingSnake)));
+                .chain()
+                .in_set(OnUpdate(GameState::Snake)));
     }
 }

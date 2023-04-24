@@ -3,9 +3,9 @@ use bevy::prelude::States;
 // Status
 #[derive(States, Default, Debug, Eq, Clone, Hash, PartialEq)]
 pub enum GameState {
-    Menu,
     #[default]
-    PlayingSnake,
+    Menu,
+    Snake,
 }
 
 // Errors

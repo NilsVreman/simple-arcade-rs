@@ -3,6 +3,7 @@ resolver = "2" # Important! wgpu/Bevy needs this!
 members = [
    "snake-rs",
    "arcade-util",
+   "arcade-menu",
 ]
 
 [workspace.dependencies]
