@@ -6,9 +6,9 @@ use bevy::sprite::{SpriteBundle, Sprite};
 use bevy::time::{Time, Timer, TimerMode};
 use bevy::utils::default;
 
-use arcade_util::{Coord2D, CoordConfiguration, Dir2D, Collidable, GameState};
-use crate::board::Board;
+use arcade_util::{Coord2D, CoordConfiguration, Dir2D, GameState, Collidable};
 use crate::food::{Food, NewFoodEvent};
+use crate::board::SnakeBoard;
 use crate::util::{TILE_SIZE, MIN_TIMER_DURATION, TICK_DURATION_MS, GameCompletionEvent, GameOver};
 
 const SNAKE_COLOR: Color = Color::rgb(0.42, 0.63, 0.07);
@@ -65,7 +65,7 @@ pub struct SpawnSnakeSegment(pub Coord2D<i32>);
 // Command is a way to mutate the World 
 impl Command for SpawnSnakeSegment {
     fn write(self, world: &mut World) {
-        let board = world.query::<&Board>()
+        let board = world.query::<&SnakeBoard>()
             .iter(&world)
             .next()
             .unwrap();
@@ -173,7 +173,7 @@ pub fn snake_eating(
 pub fn snake_game_over(
     mut commands: Commands,
     snake: Res<Snake>,
-    query: Query<&Board>,
+    query: Query<&SnakeBoard>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     let board = query.single();

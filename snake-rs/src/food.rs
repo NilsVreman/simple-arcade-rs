@@ -4,7 +4,7 @@ use bevy::ecs::system::Command;
 use bevy::sprite::{SpriteBundle, Sprite};
 use rand::seq::SliceRandom;
 
-use crate::board::Board;
+use crate::board::SnakeBoard;
 use crate::snake::Snake;
 use crate::util::TILE_SIZE;
 
@@ -17,7 +17,7 @@ pub struct SpawnFood(pub Coord2D<i32>);
 
 impl Command for SpawnFood {
     fn write(self, world: &mut World) {
-        let board = world.query::<&Board>()
+        let board = world.query::<&SnakeBoard>()
             .iter(&world)
             .next()
             .unwrap();
@@ -58,7 +58,7 @@ pub fn spawn_food(
 
 pub fn food_event_listener(
     mut commands: Commands,
-    query: Query<&Board>,
+    query: Query<&SnakeBoard>,
     mut events: EventReader<NewFoodEvent>,
     snake: Res<Snake>,
 ) {

@@ -1,11 +1,11 @@
 mod coords;
+mod board;
 mod directions;
 mod statuses;
 mod traits;
 
-pub use crate::coords::{
-    Coord2D,
-};
+pub use crate::coords::Coord2D;
+pub use crate::board::DiscreteBoard;
 pub use crate::directions::{
     Dir2D,
     Rot2D,
