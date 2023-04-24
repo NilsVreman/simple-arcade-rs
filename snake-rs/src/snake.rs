@@ -1,15 +1,16 @@
 use std::collections::VecDeque;
 
 use bevy::ecs::system::Command;
-use bevy::prelude::{Color, Resource, Commands, Res, Vec2, Transform, ResMut, Query, Entity, World, Input, KeyCode, With, EventWriter, NextState};
-use bevy::sprite::{SpriteBundle, Sprite};
+use bevy::prelude::{
+    Color, Resource, Commands, Res, ResMut, Query,
+    Entity, World, Input, KeyCode, With, EventWriter, NextState
+};
 use bevy::time::{Time, Timer, TimerMode};
-use bevy::utils::default;
 
 use arcade_util::{Coord2D, CoordConfiguration, Dir2D, GameState, Collidable};
 use crate::food::{Food, NewFoodEvent};
 use crate::board::SnakeBoard;
-use crate::util::{TILE_SIZE, MIN_TIMER_DURATION, TICK_DURATION_MS, GameCompletionEvent, GameOver};
+use crate::util::{MIN_TIMER_DURATION, TICK_DURATION_MS};
 
 const SNAKE_COLOR: Color = Color::rgb(0.42, 0.63, 0.07);
 
@@ -45,7 +46,7 @@ impl Snake {
 
     pub fn step_once(&mut self) {
     // Move head in direction
-        let mut next_coord = self.segments[0] + self.direction.as_coord();
+        let next_coord = self.segments[0] + self.direction.as_coord();
         self.segments.push_front(next_coord); // Add new head to start of snake
         self.old_tail = self.segments.pop_back().unwrap(); // Remove old tail
     }
@@ -69,19 +70,11 @@ impl Command for SpawnSnakeSegment {
             .iter(&world)
             .next()
             .unwrap();
-        let x = board.cell_pos_to_physical_pos(self.0.0);
-        let y = board.cell_pos_to_physical_pos(self.0.1);
 
-        world.spawn(SpriteBundle {
-            sprite: Sprite {
-                color: SNAKE_COLOR,
-                custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
-                ..default()
-            },
-            transform: Transform::from_xyz(x, y, 1.0),
-            ..default()
-        })
-        .insert(self.0);
+        world.spawn(
+            board.tile_sprite_at_coord(self.0.0, self.0.1, SNAKE_COLOR)
+            )
+            .insert(self.0);
     }
 }
 
@@ -171,7 +164,7 @@ pub fn snake_eating(
 }
 
 pub fn snake_game_over(
-    mut commands: Commands,
+    _commands: Commands,
     snake: Res<Snake>,
     query: Query<&SnakeBoard>,
     mut next_state: ResMut<NextState<GameState>>,

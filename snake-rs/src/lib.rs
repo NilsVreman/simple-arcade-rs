@@ -1,4 +1,5 @@
-pub mod util;
-pub mod board;
-pub mod snake;
-pub mod food;
+mod util;
+mod board;
+mod snake;
+mod food;
+pub mod plugin;

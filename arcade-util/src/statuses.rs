@@ -5,7 +5,7 @@ use bevy::prelude::States;
 pub enum GameState {
     Menu,
     #[default]
-    Playing,
+    PlayingSnake,
 }
 
 // Errors
