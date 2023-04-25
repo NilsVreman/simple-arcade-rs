@@ -8,7 +8,8 @@ use arcade_util::DefaultArcadePlugin;
 fn main() {
     App::new()
         .add_plugin(DefaultArcadePlugin)
-        .add_plugin(SnakePlugin)
+        // Has to add MenuPlugin before SnakePlugin because the states are defined in MenuPlugin
         .add_plugin(MenuPlugin)
+        .add_plugin(SnakePlugin)
         .run();
 }

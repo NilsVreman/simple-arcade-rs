@@ -11,6 +11,8 @@ use bevy::{
     DefaultPlugins
 };
 
+use crate::ArcadeState;
+
 pub struct DefaultArcadePlugin;
 
 impl Plugin for DefaultArcadePlugin {
@@ -21,6 +23,7 @@ impl Plugin for DefaultArcadePlugin {
             asset_folder: "../assets/".to_string(),
             ..default()
         }))
+        .add_state::<ArcadeState>()
         // Add camera to the system
         .add_startup_system(setup_camera);
     }

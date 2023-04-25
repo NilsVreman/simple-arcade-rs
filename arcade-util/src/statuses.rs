@@ -5,7 +5,8 @@ use bevy::prelude::States;
 pub enum ArcadeState {
     #[default]
     Menu,
-    Playing,
+    PlayingSnake,
+    PlayingMinesweeper,
 }
 
 // Status
@@ -14,6 +15,15 @@ pub enum ActiveGameState {
     #[default]
     Snake,
     Minesweeper,
+}
+
+impl ActiveGameState {
+    pub fn as_arcade_state(&self) -> ArcadeState {
+        match self {
+            ActiveGameState::Snake       => ArcadeState::PlayingSnake,
+            ActiveGameState::Minesweeper => ArcadeState::PlayingMinesweeper,
+        }
+    }
 }
 
 // Errors

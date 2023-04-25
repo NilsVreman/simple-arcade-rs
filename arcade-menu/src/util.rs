@@ -29,7 +29,7 @@ pub enum MenuState {
 
 // All actions that can be triggered from a button click on the main menu
 #[derive(Component)]
-pub enum MenuButtonAction {
+pub enum MainMenuButtonAction {
     Play,
     GameList,
     Quit,
@@ -37,7 +37,7 @@ pub enum MenuButtonAction {
 
 // All actions that can be triggered from a button click on the game list menu
 #[derive(Component)]
-pub enum GameListButtonAction {
+pub enum GameMenuButtonAction {
     PlaySnake,
     PlayMinesweeper,
     BackToMainMenu,

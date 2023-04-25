@@ -21,9 +21,9 @@ use crate::util::{
     OnMainMenuScreen,
     NORMAL_BUTTON_COLOR,
     TEXT_COLOR,
-    MenuButtonAction,
+    MainMenuButtonAction,
     OnGamesMenuScreen,
-    GameListButtonAction,
+    GameMenuButtonAction,
 };
 use crate::systems::{
     menu_action,
@@ -46,7 +46,6 @@ impl Plugin for MenuPlugin {
             // Current screen in the menu is handled by an independent state from `ArcadeState`
             .add_state::<MenuState>()
             .add_state::<ActiveGameState>()
-            .add_state::<ArcadeState>()
             // Systems to handle the main menu screen
             .add_system(menu_setup.in_schedule(OnEnter(ArcadeState::Menu)))
             .add_system(main_menu_setup.in_schedule(OnEnter(MenuState::Main)))
@@ -89,7 +88,6 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         font_size: 40.0,
         color: TEXT_COLOR,
         font: font_asset.clone(),
-        ..default()
     };
 
     commands.spawn(NodeBundle {
@@ -120,7 +118,6 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     font_size: 80.0,
                     font: font_asset.clone(),
                     color: TEXT_COLOR,
-                    ..default()
                 })
                .with_style(Style {
                     margin: UiRect::all(Val::Px(50.0)),
@@ -130,9 +127,9 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
             // Three buttons: New Game, Game List, Quit
             for (action, text) in [ // Here are all the buttons iterated
-                (MenuButtonAction::Play, "New Game"),
-                (MenuButtonAction::GameList, "Other Games"),
-                (MenuButtonAction::Quit, "Quit"),
+                (MainMenuButtonAction::Play, "New Game"),
+                (MainMenuButtonAction::GameList, "Other Games"),
+                (MainMenuButtonAction::Quit, "Quit"),
             ] {
                 parent.spawn(ButtonBundle {
                     style: button_style.clone(),
@@ -164,7 +161,6 @@ fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         font_size: 40.0,
         color: TEXT_COLOR,
         font: font_asset,
-        ..default()
     };
 
     commands.spawn(NodeBundle {
@@ -190,9 +186,9 @@ fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .with_children(|parent| {
             // X buttons: Snake, Back
             for (action, text) in [ // Here are all the buttons iterated
-                (GameListButtonAction::PlaySnake, "Snake"),
-                (GameListButtonAction::PlayMinesweeper, "Minesweeper"),
-                (GameListButtonAction::BackToMainMenu, "Back"),
+                (GameMenuButtonAction::PlaySnake, "Snake"),
+                (GameMenuButtonAction::PlayMinesweeper, "Minesweeper"),
+                (GameMenuButtonAction::BackToMainMenu, "Back"),
             ] {
                 parent.spawn(ButtonBundle {
                     style: button_style.clone(),

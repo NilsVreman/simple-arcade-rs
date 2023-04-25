@@ -10,7 +10,7 @@ use bevy::time::{Time, Timer, TimerMode};
 use arcade_util::{Coord2D, CoordConfiguration, Dir2D, ArcadeState, Collidable};
 use crate::food::{Food, NewFoodEvent};
 use crate::board::SnakeBoard;
-use crate::util::{MIN_TIMER_DURATION, TICK_DURATION_MS};
+use crate::util::TICK_DURATION_MS;
 
 const SNAKE_COLOR: Color = Color::rgb(0.42, 0.63, 0.07);
 
@@ -83,14 +83,6 @@ impl Command for SpawnSnakeSegment {
 #[derive(Resource)]
 pub struct SnakeTimer(pub Timer);
 
-impl SnakeTimer {
-    fn update_timer(&mut self) {
-        if self.0.duration() > MIN_TIMER_DURATION {
-            self.0 = Timer::new(self.0.duration() / 2, TimerMode::Repeating);
-        }
-    }
-}
-
 impl Default for SnakeTimer {
     fn default() -> Self {
         SnakeTimer(Timer::new(TICK_DURATION_MS, TimerMode::Repeating))
@@ -106,6 +98,12 @@ pub fn spawn_snake(
     for segment in snake.configuration() {
         commands.add(SpawnSnakeSegment(*segment));
     }
+}
+
+pub fn reset_snake(
+    mut snake: ResMut<Snake>,
+) {
+    *snake = Snake::default();
 }
 
 pub fn move_snake_forward(

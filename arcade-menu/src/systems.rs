@@ -6,16 +6,19 @@ use crate::util::{
     PRESSED_BUTTON_COLOR,
     HOVERED_PRESSED_BUTTON_COLOR,
     HOVERED_BUTTON_COLOR,
-    NORMAL_BUTTON_COLOR, MenuState, MenuButtonAction, GameListButtonAction,
+    NORMAL_BUTTON_COLOR,
+    MenuState,
+    MainMenuButtonAction,
+    GameMenuButtonAction,
 };
+
+type MouseColorInteraction<'a> = (&'a Interaction, &'a mut BackgroundColor, Option<&'a SelectedOption>);
+type MouseMainMenuInteraction<'a> = (&'a Interaction, &'a MainMenuButtonAction);
+type MouseGameMenuInteraction<'a> = (&'a Interaction, &'a GameMenuButtonAction);
 
 // This system handles the buttons background changes
 pub fn button_system(
-    mut interaction_query:
-        Query<
-            (&Interaction, &mut BackgroundColor, Option<&SelectedOption>),
-            (Changed<Interaction>, With<Button>)
-        >,
+    mut interaction_query: Query<MouseColorInteraction, With<Button>>,
 ) {
     for (interaction, mut color, selected) in &mut interaction_query {
         *color = match (*interaction, selected) {
@@ -31,14 +34,14 @@ pub fn button_system(
 // TODO: Make this more expressive in the future
 pub fn keybinding_system(
     input: Res<Input<KeyCode>>,
+    game_state: Res<State<ActiveGameState>>,
     mut app_exit_events: EventWriter<AppExit>,
-    menu_state: Res<State<MenuState>>,
     mut next_menu_state: ResMut<NextState<MenuState>>,
-    mut arcade_state: ResMut<NextState<ArcadeState>>,
+    mut next_arcade_state: ResMut<NextState<ArcadeState>>,
 ) {
     if input.just_pressed(KeyCode::Return) {
+        next_arcade_state.set(game_state.as_ref().0.as_arcade_state());
         next_menu_state.set(MenuState::Disabled);
-        arcade_state.set(ArcadeState::Playing);
     } else if input.just_pressed(KeyCode::Escape) {
         app_exit_events.send(AppExit);
     }
@@ -46,20 +49,21 @@ pub fn keybinding_system(
 
 // Sets state based on the MenuButtonActions
 pub fn menu_action(
-    interaction_query: Query<(&Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
+    interaction_query: Query<MouseMainMenuInteraction, With<Button>>,
+    game_state: Res<State<ActiveGameState>>,
     mut app_exit_events: EventWriter<AppExit>,
-    mut menu_state: ResMut<NextState<MenuState>>,
-    mut arcade_state: ResMut<NextState<ArcadeState>>,
+    mut next_menu_state: ResMut<NextState<MenuState>>,
+    mut next_arcade_state: ResMut<NextState<ArcadeState>>,
 ) {
     for (interaction, menu_button_action) in &interaction_query {
         if *interaction == Interaction::Clicked {
             match menu_button_action {
-                MenuButtonAction::Quit => app_exit_events.send(AppExit),
-                MenuButtonAction::Play => {
-                    arcade_state.set(ArcadeState::Playing);
-                    menu_state.set(MenuState::Disabled);
+                MainMenuButtonAction::Quit => app_exit_events.send(AppExit),
+                MainMenuButtonAction::Play => {
+                    next_arcade_state.set(game_state.as_ref().0.as_arcade_state());
+                    next_menu_state.set(MenuState::Disabled);
                 }
-                MenuButtonAction::GameList => menu_state.set(MenuState::GameSelection),
+                MainMenuButtonAction::GameList => next_menu_state.set(MenuState::GameSelection),
             }
         }
     }
@@ -67,23 +71,22 @@ pub fn menu_action(
 
 // Sets state based on the GameListButtonActions
 pub fn game_list_action(
-    interaction_query: Query<(&Interaction, &GameListButtonAction), (Changed<Interaction>, With<Button>)>,
-    mut menu_state: ResMut<NextState<MenuState>>,
-    mut arcade_state: ResMut<NextState<ArcadeState>>,
-    mut game_state: ResMut<NextState<ActiveGameState>>,
+    interaction_query: Query<MouseGameMenuInteraction, With<Button>>,
+    mut next_menu_state: ResMut<NextState<MenuState>>,
+    mut next_game_state: ResMut<NextState<ActiveGameState>>,
 ) {
     for (interaction, game_list_button_action) in &interaction_query {
         if *interaction == Interaction::Clicked {
             match game_list_button_action {
-                GameListButtonAction::PlaySnake => {
+                GameMenuButtonAction::PlaySnake => {
                     println!("Switching to Snake");
-                    game_state.set(ActiveGameState::Snake);
+                    next_game_state.set(ActiveGameState::Snake);
                 },
-                GameListButtonAction::PlayMinesweeper => {
+                GameMenuButtonAction::PlayMinesweeper => {
                     println!("Switching to Minesweeper");
-                    game_state.set(ActiveGameState::Minesweeper);
+                    next_game_state.set(ActiveGameState::Minesweeper);
                 },
-                GameListButtonAction::BackToMainMenu => menu_state.set(MenuState::Main),
+                GameMenuButtonAction::BackToMainMenu => next_menu_state.set(MenuState::Main),
             }
         }
     }

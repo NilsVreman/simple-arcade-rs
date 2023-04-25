@@ -1,5 +1,5 @@
-use arcade_util::ArcadeState;
-use bevy::prelude::{Plugin, OnUpdate, IntoSystemConfigs};
+use arcade_util::{ArcadeState, despawn_component, Coord2D};
+use bevy::prelude::{Plugin, OnUpdate, IntoSystemConfigs, OnEnter, IntoSystemAppConfigs, OnExit};
 
 use crate::food::{
     FoodPlugin,
@@ -12,9 +12,12 @@ use crate::snake::{
     rotate_snake,
     move_snake_forward,
     snake_eating,
-    snake_game_over
+    snake_game_over, reset_snake
 };
-use crate::board::spawn_board;
+use crate::board::{
+    spawn_board,
+    SnakeBoard,
+};
 
 pub struct SnakePlugin;
 
@@ -24,10 +27,23 @@ impl Plugin for SnakePlugin {
             .add_plugin(FoodPlugin)
             .insert_resource(Snake::default())
             .insert_resource(SnakeTimer::default())
-            .add_startup_system(spawn_board)
-            .add_startup_system(spawn_snake)
-            .add_startup_system(spawn_food)
-            .add_systems(
+            .add_systems(  // Things to run on starting this game
+                (
+                    spawn_board,
+                    spawn_snake,
+                    spawn_food,
+                )
+                .chain()
+                .in_schedule(OnEnter(ArcadeState::PlayingSnake)))
+            .add_systems(  // Things to run on exiting the game
+                (
+                    despawn_component::<SnakeBoard>,
+                    despawn_component::<Coord2D<i32>>,
+                    reset_snake,
+                )
+                .chain()
+                .in_schedule(OnExit(ArcadeState::PlayingSnake)))
+            .add_systems(  // Things to run whilst the game is active
                 (
                     rotate_snake,
                     move_snake_forward,
@@ -35,22 +51,6 @@ impl Plugin for SnakePlugin {
                     snake_game_over,
                 )
                 .chain()
-                .in_set(OnUpdate(ArcadeState::Playing)));
+                .in_set(OnUpdate(ArcadeState::PlayingSnake)));
     }
-    //        // Systems to handle the main menu screen
-    //        .add_system(menu_setup.in_schedule(OnEnter(ArcadeState::Menu)))
-    //        .add_system(main_menu_setup.in_schedule(OnEnter(MenuState::Main)))
-    //        .add_system(despawn_component::<OnMainMenuScreen>.in_schedule(OnExit(MenuState::Main)))
-    //        // Systems to handle the game list menu screen
-    //        .add_system(game_list_setup.in_schedule(OnEnter(MenuState::GameSelection)))
-    //        .add_system(despawn_component::<OnGamesMenuScreen>.in_schedule(OnExit(MenuState::GameSelection)))
-    //        // Common systems to all screens that handles buttons behavior
-    //        .add_systems(
-    //            (
-    //                menu_action,
-    //                game_list_action,
-    //                button_system,
-    //                keybinding_system,
-    //            )
-    //            .in_set(OnUpdate(ArcadeState::Menu)),
 }

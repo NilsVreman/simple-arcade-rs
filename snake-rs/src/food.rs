@@ -42,7 +42,6 @@ pub struct NewFoodEvent;
 pub fn spawn_food(
     mut commands: Commands,
 ) {
-    //let thread_rng = rand::thread_rng();
     commands.add(SpawnFood(Coord2D(10, 10)));
 }
 
@@ -52,22 +51,22 @@ pub fn food_event_listener(
     mut events: EventReader<NewFoodEvent>,
     snake: Res<Snake>,
 ) {
-    let board = query.single();
+    if let Ok(board) = query.get_single() {  // To avoid panicing when we add the FoodPlugin
+        let feasible_food_coord: Vec<Coord2D<i32>> = (0..board.get_size())
+            .flat_map(|x| (0..board.get_size())
+                 .map(move |y| Coord2D(x, y)))
+            .filter(|c| !snake.configuration().any(|sc| sc == c))
+            .collect();
 
-    let feasible_food_coord: Vec<Coord2D<i32>> = (0..board.get_size())
-        .flat_map(|x| (0..board.get_size())
-             .map(move |y| Coord2D(x, y)))
-        .filter(|c| !snake.configuration().any(|sc| sc == c))
-        .collect();
+        // Need to do this to consume the events in the EventReader, and also add that much new food
+        let mut num_food = 0;
+        for _ in events.iter() {
+            num_food += 1;
+        }
 
-    // Need to do this to consume the events in the EventReader, and also add that much new food
-    let mut num_food = 0;
-    for _ in events.iter() {
-        num_food += 1;
-    }
-
-    let mut rng = rand::thread_rng();
-    for &coord in feasible_food_coord.choose_multiple(&mut rng, num_food) {
-        commands.add(SpawnFood(coord));
+        let mut rng = rand::thread_rng();
+        for &coord in feasible_food_coord.choose_multiple(&mut rng, num_food) {
+            commands.add(SpawnFood(coord));
+        }
     }
 }
