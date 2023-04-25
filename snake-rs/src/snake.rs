@@ -45,7 +45,7 @@ impl Snake {
     }
 
     pub fn step_once(&mut self) {
-    // Move head in direction
+        // Move head in direction
         let next_coord = self.segments[0] + self.direction.as_coord();
         self.segments.push_front(next_coord); // Add new head to start of snake
         self.old_tail = self.segments.pop_back().unwrap(); // Remove old tail
@@ -100,9 +100,7 @@ pub fn spawn_snake(
     }
 }
 
-pub fn reset_snake(
-    mut snake: ResMut<Snake>,
-) {
+pub fn reset_snake(mut snake: ResMut<Snake>) {
     *snake = Snake::default();
 }
 
@@ -131,16 +129,13 @@ pub fn rotate_snake(
     if input.pressed(KeyCode::H) {
         if snake.direction == Dir2D::Right { return }
         snake.direction = Dir2D::Left;
-    }
-    if input.pressed(KeyCode::J) {
+    } else if input.pressed(KeyCode::J) {
         if snake.direction == Dir2D::Up { return }
         snake.direction = Dir2D::Down;
-    } 
-    if input.pressed(KeyCode::K) {
+    } else if input.pressed(KeyCode::K) {
         if snake.direction == Dir2D::Down { return }
         snake.direction = Dir2D::Up;
-    }
-    if input.pressed(KeyCode::L) {
+    } else if input.pressed(KeyCode::L) {
         if snake.direction == Dir2D::Left { return }
         snake.direction = Dir2D::Right;
     }
