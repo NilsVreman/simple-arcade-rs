@@ -2,4 +2,6 @@ mod util;
 mod board;
 mod snake;
 mod food;
-pub mod plugin;
+mod plugin;
+
+pub use plugin::SnakePlugin;

@@ -39,5 +39,6 @@ pub enum MenuButtonAction {
 #[derive(Component)]
 pub enum GameListButtonAction {
     PlaySnake,
+    PlayMinesweeper,
     BackToMainMenu,
 }

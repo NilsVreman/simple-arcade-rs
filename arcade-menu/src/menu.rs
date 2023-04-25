@@ -1,18 +1,35 @@
-use arcade_util::GameState;
-use bevy::{prelude::*, app::AppExit};
+use bevy::prelude::*;
+use bevy::text::{TextStyle, Font};
+use bevy::ui::{
+    JustifyContent,
+    AlignItems,
+    FlexDirection,
+    Style,
+    Val,
+    Size,
+    UiRect,
+};
+
+use arcade_util::{
+    ArcadeState, 
+    ActiveGameState,
+    despawn_component, 
+};
 
 use crate::util::{
     MenuState,
     OnMainMenuScreen,
-    SelectedOption,
-    PRESSED_BUTTON_COLOR,
-    HOVERED_PRESSED_BUTTON_COLOR,
-    HOVERED_BUTTON_COLOR,
     NORMAL_BUTTON_COLOR,
     TEXT_COLOR,
     MenuButtonAction,
     OnGamesMenuScreen,
     GameListButtonAction,
+};
+use crate::systems::{
+    menu_action,
+    game_list_action,
+    button_system,
+    keybinding_system,
 };
 
 // This plugin manages the menu, with 5 different screens:
@@ -25,43 +42,28 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app
             // At start, the menu is not enabled. This will be changed in `menu_setup` when
-            // entering the `GameState::Menu` state.
-            // Current screen in the menu is handled by an independent state from `GameState`
+            // entering the `ArcadeState::Menu` state.
+            // Current screen in the menu is handled by an independent state from `ArcadeState`
             .add_state::<MenuState>()
+            .add_state::<ActiveGameState>()
+            .add_state::<ArcadeState>()
             // Systems to handle the main menu screen
-            .add_system(menu_setup.in_schedule(OnEnter(GameState::Menu)))
+            .add_system(menu_setup.in_schedule(OnEnter(ArcadeState::Menu)))
             .add_system(main_menu_setup.in_schedule(OnEnter(MenuState::Main)))
-            .add_system(despawn_screen::<OnMainMenuScreen>.in_schedule(OnExit(MenuState::Main)))
+            .add_system(despawn_component::<OnMainMenuScreen>.in_schedule(OnExit(MenuState::Main)))
             // Systems to handle the game list menu screen
             .add_system(game_list_setup.in_schedule(OnEnter(MenuState::GameSelection)))
-            .add_system(despawn_screen::<OnGamesMenuScreen>.in_schedule(OnExit(MenuState::GameSelection)))
+            .add_system(despawn_component::<OnGamesMenuScreen>.in_schedule(OnExit(MenuState::GameSelection)))
             // Common systems to all screens that handles buttons behavior
             .add_systems(
                 (
                     menu_action,
                     game_list_action,
-                    button_system
+                    button_system,
+                    keybinding_system,
                 )
-                .in_set(OnUpdate(GameState::Menu)),
+                .in_set(OnUpdate(ArcadeState::Menu)),
             );
-    }
-}
-
-// This system handles the buttons background changes
-fn button_system(
-    mut interaction_query:
-        Query<
-            (&Interaction, &mut BackgroundColor, Option<&SelectedOption>),
-            (Changed<Interaction>, With<Button>)
-        >,
-) {
-    for (interaction, mut color, selected) in &mut interaction_query {
-        *color = match (*interaction, selected) {
-            (Interaction::Clicked, _) | (Interaction::None, Some(_)) => PRESSED_BUTTON_COLOR.into(),
-            (Interaction::Hovered, Some(_)) => HOVERED_PRESSED_BUTTON_COLOR.into(),
-            (Interaction::Hovered, None) => HOVERED_BUTTON_COLOR.into(),
-            (Interaction::None, None) => NORMAL_BUTTON_COLOR.into(),
-        }
     }
 }
 
@@ -69,9 +71,12 @@ fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
     menu_state.set(MenuState::Main);
 }
 
+fn load_font(asset_server: Res<AssetServer>) -> Handle<Font> {
+    asset_server.load("fonts/FiraSans-Bold.ttf")
+}
 
 fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_asset = asset_server.load("fonts/FiraSans-Bold.ttf");
+    let font_asset = load_font(asset_server);
     // Common style for all buttons on the screen
     let button_style = Style {
         size: Size::new(Val::Px(250.0), Val::Px(65.0)),
@@ -117,7 +122,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     color: TEXT_COLOR,
                     ..default()
                 })
-                .with_style(Style {
+               .with_style(Style {
                     margin: UiRect::all(Val::Px(50.0)),
                     ..default()
                 }),
@@ -147,7 +152,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_asset = asset_server.load("fonts/FiraSans-Bold.ttf");
+    let font_asset = load_font(asset_server);
     let button_style = Style {
         size: Size::new(Val::Px(200.0), Val::Px(65.0)),
         margin: UiRect::all(Val::Px(20.0)),
@@ -186,6 +191,7 @@ fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             // X buttons: Snake, Back
             for (action, text) in [ // Here are all the buttons iterated
                 (GameListButtonAction::PlaySnake, "Snake"),
+                (GameListButtonAction::PlayMinesweeper, "Minesweeper"),
                 (GameListButtonAction::BackToMainMenu, "Back"),
             ] {
                 parent.spawn(ButtonBundle {
@@ -203,51 +209,4 @@ fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             }
         });
     });
-}
-
-// Sets state based on the MenuButtonActions
-fn menu_action(
-    interaction_query: Query<(&Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
-    mut app_exit_events: EventWriter<AppExit>,
-    mut menu_state: ResMut<NextState<MenuState>>,
-    mut game_state: ResMut<NextState<GameState>>,
-) {
-    for (interaction, menu_button_action) in &interaction_query {
-        if *interaction == Interaction::Clicked {
-            match menu_button_action {
-                MenuButtonAction::Quit => app_exit_events.send(AppExit),
-                MenuButtonAction::Play => {
-                    game_state.set(GameState::Snake);
-                    menu_state.set(MenuState::Disabled);
-                }
-                MenuButtonAction::GameList => menu_state.set(MenuState::GameSelection),
-            }
-        }
-    }
-}
-
-// Sets state based on the GameListButtonActions
-fn game_list_action(
-    interaction_query: Query<(&Interaction, &GameListButtonAction), (Changed<Interaction>, With<Button>)>,
-    mut menu_state: ResMut<NextState<MenuState>>,
-    mut game_state: ResMut<NextState<GameState>>,
-) {
-    for (interaction, game_list_button_action) in &interaction_query {
-        if *interaction == Interaction::Clicked {
-            match game_list_button_action {
-                GameListButtonAction::PlaySnake => {
-                    game_state.set(GameState::Snake);
-                    menu_state.set(MenuState::Disabled);
-                },
-                GameListButtonAction::BackToMainMenu => menu_state.set(MenuState::Main),
-            }
-        }
-    }
-}
-
-// Generic system that takes a component as a parameter, and will despawn all entities with that component
-fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
-    }
 }

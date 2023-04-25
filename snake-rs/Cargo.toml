@@ -8,5 +8,6 @@ authors = ["Nils Vreman <nils.vreman@gmail.com>"]
 
 [dependencies]
 arcade-util = { path = "../arcade-util" }
+arcade-menu = { path = "../arcade-menu" }
 bevy = { workspace = true }
 rand = { version = "0.8", features = ["small_rng"] }

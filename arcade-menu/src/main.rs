@@ -1,19 +1,14 @@
-use arcade_menu::menu;
-use arcade_util::GameState;
-use bevy::{prelude::{App, Camera2dBundle, Commands, IntoSystemConfig, OnEnter, OnUpdate}, DefaultPlugins};
+use arcade_menu::MenuPlugin;
+use arcade_util::{DefaultArcadePlugin, ArcadeState};
+use bevy::prelude::App;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_startup_system(setup)
+        .add_plugin(DefaultArcadePlugin)
         // Declare the game state, whose starting value is determined by the `Default` trait
-        .add_state::<GameState>()
+        .add_state::<ArcadeState>()
         // Adds the plugins for each state
-        .add_plugin(menu::MenuPlugin)
+        .add_plugin(MenuPlugin)
         .run();
 }
 
-
-fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-}

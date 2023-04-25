@@ -7,7 +7,7 @@ use bevy::prelude::{
 };
 use bevy::time::{Time, Timer, TimerMode};
 
-use arcade_util::{Coord2D, CoordConfiguration, Dir2D, GameState, Collidable};
+use arcade_util::{Coord2D, CoordConfiguration, Dir2D, ArcadeState, Collidable};
 use crate::food::{Food, NewFoodEvent};
 use crate::board::SnakeBoard;
 use crate::util::{MIN_TIMER_DURATION, TICK_DURATION_MS};
@@ -115,7 +115,7 @@ pub fn move_snake_forward(
     mut snake: ResMut<Snake>,
     coords: Query<(Entity, &Coord2D<i32>)>,
 ) {
-    if timer.0.tick(time.delta()).just_finished() {
+    if timer.0.tick(time.delta()).finished() {
         snake.step_once();
         commands.add(SpawnSnakeSegment(snake.get_head())); // Spawn sprite
 
@@ -167,7 +167,7 @@ pub fn snake_game_over(
     _commands: Commands,
     snake: Res<Snake>,
     query: Query<&SnakeBoard>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut next_state: ResMut<NextState<ArcadeState>>,
 ) {
     let board = query.single();
     let snake_head = snake.configuration().next().unwrap();
@@ -176,13 +176,6 @@ pub fn snake_game_over(
         || snake.configuration().skip(1).any(|c| c == snake_head)
         || snake.configuration().count() == (board.get_size()*board.get_size()) as usize
     {
-        next_state.set(GameState::Menu);
+        next_state.set(ArcadeState::Menu);
     }
 }
-    //if board.collides_with(snake_head) {
-    //    event.send(GameCompletionEvent(GameOver::HitWall));
-    //} else if snake.configuration().any(|c| c == snake_head) {
-    //    event.send(GameCompletionEvent(GameOver::HitSnake));
-    //} else if snake.configuration().count() == (board.get_size()*board.get_size()) as usize {
-    //    event.send(GameCompletionEvent(GameOver::Win));
-    //}

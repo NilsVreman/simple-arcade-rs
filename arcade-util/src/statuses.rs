@@ -2,10 +2,18 @@ use bevy::prelude::States;
 
 // Status
 #[derive(States, Default, Debug, Eq, Clone, Hash, PartialEq)]
-pub enum GameState {
+pub enum ArcadeState {
     #[default]
     Menu,
+    Playing,
+}
+
+// Status
+#[derive(States, Default, Debug, Eq, Clone, Hash, PartialEq)]
+pub enum ActiveGameState {
+    #[default]
     Snake,
+    Minesweeper,
 }
 
 // Errors

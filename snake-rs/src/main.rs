@@ -1,16 +1,14 @@
-use bevy::prelude::*;
+use bevy::prelude::App;
 
-use snake_rs::plugin::SnakePlugin;
+use snake_rs::SnakePlugin;
+use arcade_menu::MenuPlugin;
+use arcade_util::DefaultArcadePlugin;
 
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugin(DefaultArcadePlugin)
         .add_plugin(SnakePlugin)
-        .add_startup_system(setup)
+        .add_plugin(MenuPlugin)
         .run();
-}
-
-fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
 }
