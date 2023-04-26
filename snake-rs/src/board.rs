@@ -32,7 +32,7 @@ impl Collidable<i32> for SnakeBoard {
 }
 
 pub fn spawn_board(mut commands: Commands) {
-    let board = SnakeBoard(arcade_util::DiscreteBoard::new(BOARD_SIZE, TILE_SIZE, TILE_SPACING));
+    let board = SnakeBoard(DiscreteBoard::new(BOARD_SIZE, TILE_SIZE, TILE_SPACING));
 
     commands.spawn(SpriteBundle {
         sprite: Sprite {
