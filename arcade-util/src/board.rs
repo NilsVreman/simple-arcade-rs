@@ -24,6 +24,12 @@ impl DiscreteBoard {
         offset + Self::pos_to_physical(pos, self.tile_size, self.tile_spacing)
     }
 
+    pub fn physical_pos_to_cell_pos(&self, pos: f32) -> i32 {
+        let offset = -self.physical_size / 2.0 + 0.5 * self.tile_size;
+        ((pos - offset - self.tile_spacing) / (self.tile_size + self.tile_spacing))
+            .round() as i32
+    }
+
     pub fn get_size(&self) -> i32 {
         self.size
     }
