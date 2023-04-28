@@ -72,7 +72,7 @@ impl Command for SpawnSnakeSegment {
             .unwrap();
 
         world.spawn(
-            board.tile_sprite_at_coord(self.0.0, self.0.1, SNAKE_COLOR)
+            board.tile_sprite_at_coord(self.0.0, self.0.1, 1, SNAKE_COLOR)
             )
             .insert(self.0);
     }

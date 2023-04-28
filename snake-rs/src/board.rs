@@ -48,7 +48,7 @@ pub fn spawn_board(mut commands: Commands) {
         for y in 0..board.get_size() {
             for x in 0..board.get_size() {
                 builder.spawn(
-                    board.tile_sprite_at_coord(x, y, if (x+y) % 2 == 0 {
+                    board.tile_sprite_at_coord(x, y, 1, if (x+y) % 2 == 0 {
                         BOARD_COLOR
                     } else {
                         BOARD_COLOR_LIGHT

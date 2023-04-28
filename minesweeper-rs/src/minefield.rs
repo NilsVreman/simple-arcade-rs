@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use std::collections::hash_set::Difference;
+use std::collections::{HashMap, HashSet};
 
 use bevy::input::ButtonState;
 use bevy::input::mouse::MouseButtonInput;
@@ -33,6 +34,8 @@ pub struct Minefield {
     width: i32,
     height: i32,
     tiles: HashMap<Coord2D<i32>, Tile>,
+    revealed: HashSet<Coord2D<i32>>,
+    flagged: HashSet<Coord2D<i32>>,
 }
 
 // Implementation of minefield
@@ -45,7 +48,13 @@ impl Minefield {
                     .map(move |y| (Coord2D(x, y), Tile::Empty)))
         );
 
-        let mut minefield = Minefield { width, height, tiles };
+        let mut minefield = Minefield {
+            width,
+            height,
+            tiles,
+            revealed: HashSet::with_capacity((width * height) as usize),
+            flagged: HashSet::new(),
+        };
 
         for coord in (0..width).flat_map(|x| (0..height).map(move |y| Coord2D(x, y)))
             .choose_multiple(&mut rng, num_mines as usize)
@@ -93,8 +102,62 @@ impl Minefield {
         coord.0 >= 0 && coord.0 < self.width && coord.1 >= 0 && coord.1 < self.height
     }
 
+    // Reveal a tile at the given coordinate, add it to revealed, and reveal neighbors if it is
+    // possible
+    // Returns a set of coordinates that were revealed
+    pub fn reveal_coord(&mut self, coord: &Coord2D<i32>) -> HashSet<Coord2D<i32>> {
+        if self.revealed.contains(coord) {
+            return HashSet::new();
+        }
+
+        let old_revealed = self.revealed.clone();
+
+        self.revealed.insert(*coord);
+
+        match self.tiles.get(coord) {
+            Some(Tile::Empty) => {
+                self.neighbors(coord)
+                    .iter()
+                    .for_each(|neighbor| { self.reveal_coord(neighbor); });
+            },
+            Some(Tile::Number(_)) => (),
+            Some(Tile::Mine) => {
+                todo!("GAME OVER");
+            },
+            None => panic!("Tried to reveal a tile that doesn't exist"),
+        }
+
+        &self.revealed - &old_revealed
+    }
+
+    // Toggle the flag at the given coordinate, return whether the flag is now set or not
+    pub fn toggle_flag(&mut self, coord: &Coord2D<i32>) -> bool {
+        if self.flagged.contains(coord) {
+            self.flagged.remove(coord);
+            false
+        } else {
+            self.flagged.insert(*coord);
+            true
+        }
+    }
+
+    // Reset the minefield, clearing all revealed and flagged tiles and setting new mines
     pub fn reset_minefield(&mut self) {
-        todo!("HAVEN'T IMPLEMENTED RESET YET");
+        let num_mines = self.tiles.values().filter(|&tile| *tile == Tile::Mine).count();
+
+        self.tiles = HashMap::from_iter(
+            (0..self.width).flat_map(|x| (0..self.height)
+                    .map(move |y| (Coord2D(x, y), Tile::Empty)))
+        );
+        self.revealed.clear();
+        self.flagged.clear();
+
+        let mut rng = rand::thread_rng();
+        for coord in (0..self.width).flat_map(|x| (0..self.height).map(move |y| Coord2D(x, y)))
+            .choose_multiple(&mut rng, num_mines as usize)
+        {
+            self.set_bomb(&coord);
+        }
     }
 }
 
@@ -125,16 +188,18 @@ pub fn spawn_minefield(
     board: Query<&MinesweeperBoard>,
     asset_server: Res<AssetServer>,
 ) {
+    // If we currently have a board Component in the world, spawn the minefield
     if let Ok(board) = board.get_single() {
 
         let font = load_font(&asset_server);
         let img  = load_mine(&asset_server);
 
+        // Spawn the tiles, i.e., empty, number, or mine
         for coord in minefield.configuration() {
             let mut cmd = commands.spawn_empty();
 
             let tile_id = cmd.insert(
-                board.tile_sprite_at_coord(coord.0, coord.1, TILE_COLOR)
+                board.tile_sprite_at_coord(coord.0, coord.1, 1, TILE_COLOR)
             )
             .insert(*coord)
             .id();
@@ -153,30 +218,6 @@ pub fn spawn_minefield(
                         });
                 },
                 _ => (),
-            }
-        }
-    }
-}
-
-pub fn reveal_coord(
-    windows: Query<&Window>,
-    board: Query<&MinesweeperBoard>,
-    mut mouse_event: EventReader<MouseButtonInput>,
-) {
-    let window = windows.single();
-    let board = board.single();
-    for event in mouse_event.iter() {
-        if let Some(pos) = window.cursor_position() {
-            if let Some(coord) = board.mouse_to_coord(window, pos) {
-                match (event.state, event.button) {
-                    (ButtonState::Pressed, MouseButton::Left) => {
-                        println!("Revealing {:?}", coord);
-                    },
-                    (ButtonState::Pressed, MouseButton::Right) => {
-                        println!("Flagging {:?}", coord);
-                    },
-                    _ => (),
-                }
             }
         }
     }

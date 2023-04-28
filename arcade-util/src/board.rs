@@ -38,7 +38,11 @@ impl DiscreteBoard {
         self.physical_size
     }
 
-    pub fn tile_sprite_at_coord(&self, x: i32, y: i32, color: Color) -> SpriteBundle {
+    pub fn is_coord_valid(&self, x: i32, y: i32) -> bool {
+        x >= 0 && x < self.size && y >= 0 && y < self.size
+    }
+
+    pub fn tile_sprite_at_coord(&self, x: i32, y: i32, z: i32, color: Color) -> SpriteBundle {
         let x = self.cell_pos_to_physical_pos(x);
         let y = self.cell_pos_to_physical_pos(y);
         SpriteBundle {
@@ -47,7 +51,7 @@ impl DiscreteBoard {
                 custom_size: Some(Vec2::new(self.tile_size, self.tile_size)),
                 ..default()
             },
-            transform: Transform::from_xyz(x, y, 1.0),
+            transform: Transform::from_xyz(x, y, z as f32),
             ..default()
         }
     }

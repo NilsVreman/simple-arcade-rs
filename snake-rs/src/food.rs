@@ -21,7 +21,7 @@ impl Command for SpawnFood {
             .unwrap();
 
         world.spawn(
-            board.tile_sprite_at_coord(self.0.0, self.0.1, FOOD_COLOR)
+            board.tile_sprite_at_coord(self.0.0, self.0.1, 1, FOOD_COLOR)
             )
             .insert(self.0)
             .insert(Food);
