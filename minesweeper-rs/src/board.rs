@@ -3,7 +3,7 @@ use std::ops::Deref;
 use arcade_util::{DiscreteBoard, Coord2D};
 use bevy::input::ButtonState;
 use bevy::input::mouse::MouseButtonInput;
-use bevy::prelude::{Component, Commands, Color, Vec2, default, BuildChildren, Transform, Query, EventReader, MouseButton, Entity, ResMut, Res, AssetServer, Handle, Image};
+use bevy::prelude::{Component, Commands, Color, Vec2, default, BuildChildren, Transform, Query, EventReader, MouseButton, Entity, ResMut, Res, AssetServer, DespawnRecursiveExt};
 use bevy::sprite::{SpriteBundle, Sprite};
 use bevy::window::Window;
 
@@ -72,7 +72,7 @@ pub fn spawn_board(mut commands: Commands) {
         .with_children(|parent| {
             for x in 0..BOARD_SIZE {
                 for y in 0..BOARD_SIZE {
-                    parent.spawn(Cover(false))
+                    parent.spawn(Cover::Unflagged)
                         .insert(
                             board_copy.tile_sprite_at_coord(x, y, 3, TILE_COLOR_COVERED)
                         )
@@ -105,8 +105,7 @@ pub fn reveal_coord(
                         board,
                         &covered_tiles,
                         &coord,
-                        &event.state,
-                        &event.button,
+                        event,
                         &asset_server,
                     );
                 }
@@ -125,35 +124,31 @@ fn handle_mouse_event(
     board: &MinesweeperBoard,
     covered_tiles: &Query<(Entity, &Cover, &Coord2D<i32>)>,
     pressed_coord: &Coord2D<i32>,
-    mouse_event_state: &ButtonState,
-    mouse_event_button: &MouseButton,
+    mouse_event: &MouseButtonInput,
     asset_server: &Res<AssetServer>,
 ) {
-    for (entity, cvr, coord) in covered_tiles.iter() {
+    for (entity, _, coord) in covered_tiles.iter() {
         if coord == pressed_coord {
-            match (mouse_event_state, mouse_event_button) {
+            match (mouse_event.state, mouse_event.button) {
                 (ButtonState::Pressed, MouseButton::Left) => {
-                    // Reveal the tile and if it is empty, reveal all adjacent tiles
-                    println!("Revealing {:?}", pressed_coord);
                     reveal_and_despawn_from_coord(
                         &mut commands,
                         &mut minefield,
                         &covered_tiles,
                         &pressed_coord,
                     );
-                    return;
+                    break;
                 },
                 (ButtonState::Pressed, MouseButton::Right) => {
-                    println!("Flagging {:?}", pressed_coord);
                     flag_coord(
                         &mut commands,
                         &mut minefield,
                         board,
-                        &covered_tiles,
+                        &entity,
                         &pressed_coord,
                         &asset_server,
                     );
-                    return;
+                    break;
                 },
                 _ => (),
             }
@@ -162,8 +157,8 @@ fn handle_mouse_event(
 }
 
 fn reveal_and_despawn_from_coord(
-    mut commands: &mut Commands,
-    mut minefield: &mut ResMut<Minefield>,
+    commands: &mut Commands,
+    minefield: &mut ResMut<Minefield>,
     covered_tiles: &Query<(Entity, &Cover, &Coord2D<i32>)>,
     pressed_coord: &Coord2D<i32>,
 ) {
@@ -176,39 +171,30 @@ fn reveal_and_despawn_from_coord(
     }
 }
 
-fn load_flag(asset_server: &Res<AssetServer>) -> Handle<Image> {
-    asset_server.load("sprites/flag.png")
-}
-
 fn flag_coord(
-    mut commands: &mut Commands,
-    mut minefield: &mut ResMut<Minefield>,
+    commands: &mut Commands,
+    minefield: &mut ResMut<Minefield>,
     board: &MinesweeperBoard,
-    covered_tiles: &Query<(Entity, &Cover, &Coord2D<i32>)>,
+    entity: &Entity,
     pressed_coord: &Coord2D<i32>,
     asset_server: &Res<AssetServer>,
 ) {
     // load flag sprite
-    let flag = load_flag(&asset_server);
-    let flagged = minefield.toggle_flag(pressed_coord);
-
+    let flag = asset_server.load("sprites/flag.png");
+    
     // toggle flag at the given coord and if it is now flagged, spawn a flag sprite
-    for (entity, _, coord) in covered_tiles.iter() {
-        if coord == pressed_coord {
-            commands.entity(entity).despawn();
-            commands.spawn(Cover(flagged))
-                .insert(
-                    board.tile_sprite_at_coord(
-                        pressed_coord.0,
-                        pressed_coord.1,
-                        3,
-                        TILE_COLOR_COVERED)
-                )
-                .insert(*pressed_coord)
-                .with_children(|builder| {
-                    builder.spawn(Cover(flagged).to_sprite(flag.clone()));
-                });
-            return
-        }
-    }
+    let cover = minefield.toggle_flag(pressed_coord);
+    commands.entity(*entity).despawn_recursive();
+    commands.spawn(cover.clone())
+        .insert(
+            board.tile_sprite_at_coord(
+                pressed_coord.0,
+                pressed_coord.1,
+                3,
+                TILE_COLOR_COVERED)
+        )
+        .insert(*pressed_coord)
+        .with_children(|builder| {
+            builder.spawn(cover.to_sprite(flag.clone()));
+        });
 }

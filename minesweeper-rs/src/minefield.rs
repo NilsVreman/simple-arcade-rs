@@ -1,32 +1,32 @@
-use std::collections::hash_set::Difference;
 use std::collections::{HashMap, HashSet};
 
-use bevy::input::ButtonState;
-use bevy::input::mouse::MouseButtonInput;
 use bevy::prelude::{
     Resource,
-    ResMut,
-    Query, MouseButton, Res, Input, AssetServer, Image, Handle, Commands, BuildChildren, EventReader
+    Query,
+    Res,
+    AssetServer,
+    Image,
+    Handle,
+    Commands,
+    BuildChildren
 };
 use bevy::text::Font;
-use bevy::window::Window;
 use rand::seq::IteratorRandom;
 
 use arcade_util::{Coord2D, CoordConfiguration};
 
-use crate::util::{MineNeighbor, Mine, TILE_COLOR, BOARD_SIZE, NUM_MINES};
+use crate::util::{
+    MineNeighbor,
+    Mine,
+    TILE_COLOR,
+    BOARD_SIZE,
+    NUM_MINES,
+    Cover, Tile
+};
 use crate::board::MinesweeperBoard;
 
 // This file should contain the Minefield struct and its associated impl block. Preferably also the
 // components, resources, and systems that operate on it.
-
-// Enum to describe different tile types
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum Tile {
-    Mine,
-    Number(i32),
-    Empty,
-}
 
 // Add revealed and flagged components
 #[derive(Resource)]
@@ -89,14 +89,6 @@ impl Minefield {
             .collect()
     }
 
-    // Return the number of mines adjacent to the given coordinate
-    fn adjacent_mines(&self, coord: &Coord2D<i32>) -> i32 {
-        match self.tiles.get(coord) {
-            Some(Tile::Number(n)) => *n,
-            _ => 0,
-        }
-    }
-
     // Return whether the given coordinate is inside the minefield or not
     fn is_inside(&self, coord: Coord2D<i32>) -> bool {
         coord.0 >= 0 && coord.0 < self.width && coord.1 >= 0 && coord.1 < self.height
@@ -131,13 +123,13 @@ impl Minefield {
     }
 
     // Toggle the flag at the given coordinate, return whether the flag is now set or not
-    pub fn toggle_flag(&mut self, coord: &Coord2D<i32>) -> bool {
+    pub fn toggle_flag(&mut self, coord: &Coord2D<i32>) -> Cover {
         if self.flagged.contains(coord) {
             self.flagged.remove(coord);
-            false
+            Cover::Unflagged
         } else {
             self.flagged.insert(*coord);
-            true
+            Cover::Flagged
         }
     }
 
@@ -173,26 +165,18 @@ impl<'a> CoordConfiguration<'a, i32> for Minefield {
     }
 }
 
-fn load_font(asset_server: &Res<AssetServer>) -> Handle<Font> {
-    asset_server.load("fonts/pixeled.ttf")
-}
-
-fn load_mine(asset_server: &Res<AssetServer>) -> Handle<Image> {
-    asset_server.load("sprites/mine.png")
-}
-
 // spawn the minefield components
 pub fn spawn_minefield(
     mut commands: Commands,
-    mut minefield: ResMut<Minefield>,
+    minefield: Res<Minefield>,
     board: Query<&MinesweeperBoard>,
     asset_server: Res<AssetServer>,
 ) {
     // If we currently have a board Component in the world, spawn the minefield
     if let Ok(board) = board.get_single() {
 
-        let font = load_font(&asset_server);
-        let img  = load_mine(&asset_server);
+        let font = asset_server.load("fonts/pixeled.ttf");
+        let img  = asset_server.load("sprites/mine.png");
 
         // Spawn the tiles, i.e., empty, number, or mine
         for coord in minefield.configuration() {

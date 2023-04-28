@@ -10,8 +10,20 @@ pub const TILE_COLOR_COVERED: Color = Color::rgb(0.4, 0.4, 0.4);
 pub const FONT_SIZE: f32 = 40.0;
 
 pub const BOARD_SIZE: i32 = 20;
-pub const NUM_MINES: i32 = 80;
+pub const NUM_MINES: i32 = 60;
 
+// Enum to describe different tile types
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Tile {
+    Mine,
+    Number(i32),
+    Empty,
+}
+
+// An event that is fired when a specific tile is clicked
+pub struct TileClickedEvent(pub Tile);
+
+// The component identifying a Mine tile
 #[derive(Component)]
 pub struct Mine;
 
@@ -23,12 +35,13 @@ impl Mine {
                 ..default()
             },
             transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            texture: mine_image.clone(),
+            texture: mine_image,
             ..default()
         }
     }
 }
 
+// The component identifying a Mine's Neighbor
 #[derive(Component)]
 pub struct MineNeighbor(pub i32);
 
@@ -60,32 +73,34 @@ impl MineNeighbor {
     }
 }
 
-#[derive(Component)]
-pub struct Cover(pub bool); // true = flagged, false = not flagged
+// The component identifying a Covered tile
+#[derive(Component, Clone)]
+pub enum Cover {
+    Flagged,
+    Unflagged,
+}
 
 impl Cover {
-    pub fn to_sprite(&self, cover_image: Handle<Image>) -> SpriteBundle {
+    pub fn to_sprite(&self, flag_image: Handle<Image>) -> SpriteBundle {
         match self {
-            Cover(true) => self.flagged_sprite(cover_image),
-            Cover(false) => self.unflagged_sprite(),
+            Cover::Flagged => self.flagged_sprite(flag_image),
+            Cover::Unflagged => self.unflagged_sprite(),
         }
     }
 
-    fn flagged_sprite(&self, cover_image: Handle<Image>) -> SpriteBundle {
+    fn flagged_sprite(&self, flag_image: Handle<Image>) -> SpriteBundle {
         SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
                 ..default()
             },
             transform: Transform::from_xyz(0.0, 0.0, 3.0),
-            texture: cover_image.clone(),
+            texture: flag_image,
             ..default()
         }
     }
 
     fn unflagged_sprite(&self) -> SpriteBundle {
-        SpriteBundle {
-            ..default()
-        }
+        SpriteBundle::default()
     }
 }

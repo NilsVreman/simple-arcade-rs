@@ -2,10 +2,16 @@
 // Minesweeper game.
 
 use arcade_util::ArcadeState;
-use bevy::prelude::{Plugin, App, IntoSystemAppConfigs, OnEnter, OnExit, OnUpdate, IntoSystemConfigs, apply_system_buffers};
+use bevy::prelude::{Plugin, App, OnEnter, OnExit, OnUpdate, IntoSystemConfigs, apply_system_buffers};
 
-use crate::board::{spawn_board, reveal_coord};
-use crate::minefield::{Minefield, spawn_minefield};
+use crate::board::{
+    spawn_board,
+    reveal_coord,
+};
+use crate::minefield::{
+    Minefield,
+    spawn_minefield,
+};
 
 pub struct MinesweeperPlugin;
 
