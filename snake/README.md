@@ -1,4 +1,4 @@
-# simple-arcade-rs/snake-rs
+# simple-arcade-rs/snake
 A simple snake game implemented using the `Bevy` game engine. 
 
 ## TODO:

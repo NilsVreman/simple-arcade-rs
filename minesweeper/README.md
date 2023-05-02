@@ -1,4 +1,4 @@
-# simple-arcade-rs/minesweeper-rs
+# simple-arcade-rs/minesweeper
 
 __TODO!__
 

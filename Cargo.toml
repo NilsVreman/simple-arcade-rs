@@ -1,10 +1,11 @@
 [workspace]
 resolver = "2" # Important! wgpu/Bevy needs this!
 members = [
+    "simple-arcade",
     "arcade-util",
     "arcade-menu",
-    "snake-rs",
-    "minesweeper-rs",
+    "snake",
+    "minesweeper",
 ]
 
 [workspace.dependencies]

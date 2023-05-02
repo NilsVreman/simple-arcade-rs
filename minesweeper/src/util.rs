@@ -20,8 +20,12 @@ pub enum Tile {
     Empty,
 }
 
-// An event that is fired when a specific tile is clicked
-pub struct TileClickedEvent(pub Tile);
+// The minesweeper status enum
+pub enum MinesweeperStatus {
+    InProgress,
+    MineTriggered,
+    GameWon,
+}
 
 // The component identifying a Mine tile
 #[derive(Component)]

@@ -1,5 +1,17 @@
-use arcade_util::{ArcadeState, despawn_component, Coord2D};
-use bevy::prelude::{Plugin, OnUpdate, IntoSystemConfigs, OnEnter, IntoSystemAppConfigs, OnExit};
+use bevy::prelude::{
+    Plugin,
+    OnUpdate,
+    IntoSystemConfigs,
+    OnEnter,
+    IntoSystemAppConfigs,
+    OnExit
+};
+
+use arcade_util::{
+    ArcadeState,
+    despawn_component,
+    Coord2D
+};
 
 use crate::food::{
     FoodPlugin,
@@ -12,7 +24,8 @@ use crate::snake::{
     rotate_snake,
     move_snake_forward,
     snake_eating,
-    snake_game_over, reset_snake
+    snake_game_over,
+    reset_snake
 };
 use crate::board::{
     spawn_board,

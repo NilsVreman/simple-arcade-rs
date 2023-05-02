@@ -1,5 +1,5 @@
 [package]
-name = "snake-rs"
+name = "simple-arcade"
 version = "0.1.0"
 edition = "2021"
 authors = ["Nils Vreman <nils.vreman@gmail.com>"]
@@ -9,5 +9,6 @@ authors = ["Nils Vreman <nils.vreman@gmail.com>"]
 [dependencies]
 arcade-util = { path = "../arcade-util" }
 arcade-menu = { path = "../arcade-menu" }
+snake = { path = "../snake" }
+minesweeper = { path = "../minesweeper" }
 bevy = { workspace = true }
-rand = { version = "0.8", features = ["small_rng"] }

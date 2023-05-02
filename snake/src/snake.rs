@@ -157,7 +157,6 @@ pub fn snake_eating(
 }
 
 pub fn snake_game_over(
-    _commands: Commands,
     snake: Res<Snake>,
     query: Query<&SnakeBoard>,
     mut next_state: ResMut<NextState<ArcadeState>>,

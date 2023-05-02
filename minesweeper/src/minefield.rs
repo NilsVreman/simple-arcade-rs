@@ -5,12 +5,9 @@ use bevy::prelude::{
     Query,
     Res,
     AssetServer,
-    Image,
-    Handle,
     Commands,
-    BuildChildren
+    BuildChildren, ResMut
 };
-use bevy::text::Font;
 use rand::seq::IteratorRandom;
 
 use arcade_util::{Coord2D, CoordConfiguration};
@@ -21,7 +18,7 @@ use crate::util::{
     TILE_COLOR,
     BOARD_SIZE,
     NUM_MINES,
-    Cover, Tile
+    Cover, Tile, MinesweeperStatus
 };
 use crate::board::MinesweeperBoard;
 
@@ -112,10 +109,7 @@ impl Minefield {
                     .iter()
                     .for_each(|neighbor| { self.reveal_coord(neighbor); });
             },
-            Some(Tile::Number(_)) => (),
-            Some(Tile::Mine) => {
-                todo!("GAME OVER");
-            },
+            Some(_) => (),
             None => panic!("Tried to reveal a tile that doesn't exist"),
         }
 
@@ -133,24 +127,23 @@ impl Minefield {
         }
     }
 
-    // Reset the minefield, clearing all revealed and flagged tiles and setting new mines
-    pub fn reset_minefield(&mut self) {
-        let num_mines = self.tiles.values().filter(|&tile| *tile == Tile::Mine).count();
-
-        self.tiles = HashMap::from_iter(
-            (0..self.width).flat_map(|x| (0..self.height)
-                    .map(move |y| (Coord2D(x, y), Tile::Empty)))
-        );
-        self.revealed.clear();
-        self.flagged.clear();
-
-        let mut rng = rand::thread_rng();
-        for coord in (0..self.width).flat_map(|x| (0..self.height).map(move |y| Coord2D(x, y)))
-            .choose_multiple(&mut rng, num_mines as usize)
-        {
-            self.set_bomb(&coord);
+    // A function which returns whether the game is won or not, alongside the outcome of the game
+    // as a MinesweeperStatus enum
+    pub fn game_over(&self) -> MinesweeperStatus {
+        // Return MinesweeperStatus::MineTriggered if a mine is in the set of revealed tiles
+        if self.revealed.iter().any(|coord| self.tiles.get(coord) == Some(&Tile::Mine)) {
+            MinesweeperStatus::MineTriggered
+        // Return Game won if the number of revealed tiles and flagged tiles is equal to the total
+        // board size minus the number of mines
+        } else if self.revealed.len()
+            == (self.width * self.height) as usize
+                - self.tiles.values().filter(|&tile| *tile == Tile::Mine).count() {
+            MinesweeperStatus::GameWon
+        } else {
+            MinesweeperStatus::InProgress
         }
     }
+
 }
 
 impl Default for Minefield {
@@ -162,6 +155,32 @@ impl Default for Minefield {
 impl<'a> CoordConfiguration<'a, i32> for Minefield {
     fn configuration(&'a self) -> Box<dyn Iterator<Item = &'a Coord2D<i32>> + 'a> {
         Box::new(self.tiles.keys())
+    }
+}
+
+// Reset the minefield, clearing all revealed and flagged tiles and setting new mines
+pub fn reset_minefield(
+    mut minefield: ResMut<Minefield>,
+) {
+    let num_mines = minefield.tiles.values().filter(|&tile| *tile == Tile::Mine).count();
+
+    let tiles: HashMap<Coord2D<i32>, Tile> = HashMap::from_iter(
+        (0..minefield.width).flat_map(|x| (0..minefield.height)
+                .map(move |y| (Coord2D(x, y), Tile::Empty)))
+    );
+
+    *minefield = Minefield {
+        tiles,
+        revealed: HashSet::with_capacity((minefield.width * minefield.height) as usize),
+        flagged: HashSet::new(),
+        ..*minefield
+    };
+
+    let mut rng = rand::thread_rng();
+    for coord in (0..minefield.width).flat_map(|x| (0..minefield.height).map(move |y| Coord2D(x, y)))
+        .choose_multiple(&mut rng, num_mines as usize)
+    {
+        minefield.set_bomb(&coord);
     }
 }
 
