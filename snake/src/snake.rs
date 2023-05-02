@@ -126,16 +126,16 @@ pub fn rotate_snake(
     input: Res<Input<KeyCode>>,
     mut snake: ResMut<Snake>,
 ) {
-    if input.pressed(KeyCode::H) {
+    if input.any_pressed([KeyCode::H, KeyCode::Left]) {
         if snake.direction == Dir2D::Right { return }
         snake.direction = Dir2D::Left;
-    } else if input.pressed(KeyCode::J) {
+    } else if input.any_pressed([KeyCode::J, KeyCode::Down]) {
         if snake.direction == Dir2D::Up { return }
         snake.direction = Dir2D::Down;
-    } else if input.pressed(KeyCode::K) {
+    } else if input.any_pressed([KeyCode::K, KeyCode::Up]) {
         if snake.direction == Dir2D::Down { return }
         snake.direction = Dir2D::Up;
-    } else if input.pressed(KeyCode::L) {
+    } else if input.any_pressed([KeyCode::L, KeyCode::Right]) {
         if snake.direction == Dir2D::Left { return }
         snake.direction = Dir2D::Right;
     }

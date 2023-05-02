@@ -4,3 +4,6 @@ __TODO!__
 
 ## NOTE:
 * VERY IMPORTANT WHAT TO FEED TO THE TRANSFORM
+
+## TODO:
+* Implement "safe start"

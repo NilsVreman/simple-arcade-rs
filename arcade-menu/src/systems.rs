@@ -79,11 +79,9 @@ pub fn game_list_action(
         if *interaction == Interaction::Clicked {
             match game_list_button_action {
                 GameMenuButtonAction::PlaySnake => {
-                    println!("Switching to Snake");
                     next_game_state.set(ActiveGameState::Snake);
                 },
                 GameMenuButtonAction::PlayMinesweeper => {
-                    println!("Switching to Minesweeper");
                     next_game_state.set(ActiveGameState::Minesweeper);
                 },
                 GameMenuButtonAction::BackToMainMenu => next_menu_state.set(MenuState::Main),
