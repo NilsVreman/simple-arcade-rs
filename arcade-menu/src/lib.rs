@@ -1,5 +1,6 @@
 mod util;
 mod menu;
 mod systems;
+mod plugin;
 
-pub use menu::MenuPlugin;
+pub use plugin::MenuPlugin;

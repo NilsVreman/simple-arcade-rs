@@ -1,84 +1,32 @@
-use bevy::prelude::*;
-use bevy::text::{TextStyle, Font};
-use bevy::ui::{
-    JustifyContent,
-    AlignItems,
-    FlexDirection,
-    Style,
-    Val,
-    Size,
-    UiRect,
-};
-
-use arcade_util::{
-    ArcadeState, 
-    ActiveGameState,
-    despawn_component, 
+use bevy::{
+    prelude::*,
+    text::TextStyle,
+    ui::{
+        JustifyContent,
+        AlignItems,
+        FlexDirection,
+        Style,
+        Val,
+        Size,
+        UiRect,
+    }
 };
 
 use crate::util::{
-    MenuState,
     OnMainMenuScreen,
     NORMAL_BUTTON_COLOR,
     TEXT_COLOR,
+    BACKGROUND_COLOR,
     MainMenuButtonAction,
     OnGamesMenuScreen,
     GameMenuButtonAction,
 };
-use crate::systems::{
-    menu_action,
-    game_list_action,
-    button_system,
-    keybinding_system,
-};
 
-// This plugin manages the menu, with 5 different screens:
-// - a main menu with "New Game", "Settings", "Quit"
-// - a settings menu with two submenus and a back button
-// - two settings screen with a setting that can be set and a back button
-pub struct MenuPlugin;
-
-impl Plugin for MenuPlugin {
-    fn build(&self, app: &mut App) {
-        app
-            // At start, the menu is not enabled. This will be changed in `menu_setup` when
-            // entering the `ArcadeState::Menu` state.
-            // Current screen in the menu is handled by an independent state from `ArcadeState`
-            .add_state::<MenuState>()
-            .add_state::<ActiveGameState>()
-            // Systems to handle the main menu screen
-            .add_system(menu_setup.in_schedule(OnEnter(ArcadeState::Menu)))
-            .add_system(main_menu_setup.in_schedule(OnEnter(MenuState::Main)))
-            .add_system(despawn_component::<OnMainMenuScreen>.in_schedule(OnExit(MenuState::Main)))
-            // Systems to handle the game list menu screen
-            .add_system(game_list_setup.in_schedule(OnEnter(MenuState::GameSelection)))
-            .add_system(despawn_component::<OnGamesMenuScreen>.in_schedule(OnExit(MenuState::GameSelection)))
-            // Common systems to all screens that handles buttons behavior
-            .add_systems(
-                (
-                    menu_action,
-                    game_list_action,
-                    button_system,
-                    keybinding_system,
-                )
-                .in_set(OnUpdate(ArcadeState::Menu)),
-            );
-    }
-}
-
-fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
-    menu_state.set(MenuState::Main);
-}
-
-fn load_font(asset_server: Res<AssetServer>) -> Handle<Font> {
-    asset_server.load("fonts/FiraSans-Bold.ttf")
-}
-
-fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_asset = load_font(asset_server);
+pub fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let font_asset = asset_server.load("fonts/FiraSans-Bold.ttf");
     // Common style for all buttons on the screen
     let button_style = Style {
-        size: Size::new(Val::Px(250.0), Val::Px(65.0)),
+        size: Size::new(Val::Px(300.0), Val::Px(65.0)),
         margin: UiRect::all(Val::Px(20.0)),
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
@@ -107,7 +55,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            background_color: Color::CRIMSON.into(),
+            background_color: BACKGROUND_COLOR.into(),
             ..default()
         })
         .with_children(|parent| {
@@ -127,7 +75,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
             // Three buttons: New Game, Game List, Quit
             for (action, text) in [ // Here are all the buttons iterated
-                (MainMenuButtonAction::Play, "New Game"),
+                (MainMenuButtonAction::Play, "Play Snake"),
                 (MainMenuButtonAction::GameList, "Other Games"),
                 (MainMenuButtonAction::Quit, "Quit"),
             ] {
@@ -148,10 +96,10 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     });
 }
 
-fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_asset = load_font(asset_server);
+pub fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let font_asset = asset_server.load("fonts/FiraSans-Bold.ttf");
     let button_style = Style {
-        size: Size::new(Val::Px(200.0), Val::Px(65.0)),
+        size: Size::new(Val::Px(250.0), Val::Px(65.0)),
         margin: UiRect::all(Val::Px(20.0)),
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
@@ -180,7 +128,7 @@ fn game_list_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            background_color: Color::CRIMSON.into(),
+            background_color: BACKGROUND_COLOR.into(),
             ..default()
         })
         .with_children(|parent| {

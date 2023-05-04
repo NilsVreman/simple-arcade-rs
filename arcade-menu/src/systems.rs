@@ -1,5 +1,9 @@
+use bevy::{
+    prelude::*,
+    app::AppExit
+};
+
 use arcade_util::{ArcadeState, ActiveGameState};
-use bevy::{prelude::*, app::AppExit};
 
 use crate::util::{
     SelectedOption,
@@ -85,6 +89,29 @@ pub fn game_list_action(
                     next_game_state.set(ActiveGameState::Minesweeper);
                 },
                 GameMenuButtonAction::BackToMainMenu => next_menu_state.set(MenuState::Main),
+            }
+        }
+    }
+}
+
+// Updates play button text based on active game state
+// NOTE: This is a workaround for the lack of dynamic text in bevy. Really convoluted and not
+// pretty
+pub fn text_update_system(
+    game_state: Res<State<ActiveGameState>>,
+    mut update_query: Query<(&Button, &Children, &MainMenuButtonAction)>,
+    mut children_query: Query<&mut Text>,
+) {
+    for (_, children, action) in &mut update_query {
+        if let MainMenuButtonAction::Play = action {
+            for child in children {
+                if let Ok(mut text) = children_query.get_mut(*child) {
+                    text.sections[0].value = match game_state.as_ref().0 {
+                        ActiveGameState::Snake => "Play Snake",
+                        ActiveGameState::Minesweeper => "Play Minesweeper",
+                        _ => "Not yet implemented",
+                    }.to_string();
+                }
             }
         }
     }
