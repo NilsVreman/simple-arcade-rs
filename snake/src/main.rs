@@ -9,13 +9,14 @@ use arcade_util::{
     DefaultArcadePlugin,
     ArcadeState
 };
+use arcade_popup::PopupPlugin;
 
 
 fn main() {
     App::new()
         .add_plugin(DefaultArcadePlugin)
         .add_plugin(SnakePlugin)
-        .add_plugin(ResultPlguin)
+        .add_plugin(PopupPlugin)
         .add_startup_system(set_playing_state)
         .run();
 }

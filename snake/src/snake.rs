@@ -157,6 +157,7 @@ pub fn snake_eating(
 }
 
 pub fn snake_game_over(
+    commands: Commands,
     snake: Res<Snake>,
     query: Query<&SnakeBoard>,
     mut next_state: ResMut<NextState<ArcadeState>>,
@@ -168,6 +169,17 @@ pub fn snake_game_over(
         || snake.configuration().skip(1).any(|c| c == snake_head)
         || snake.configuration().count() == (board.get_size()*board.get_size()) as usize
     {
-        next_state.set(ArcadeState::Menu);
+        next_state.set(ArcadeState::Popup);
+        arcade_popup::spawn_popup(
+            commands,
+            String::from(
+                if snake.configuration().count() == (board.get_size()*board.get_size()) as usize {
+                    "You won!"
+                } else {
+                    "Game over!"
+                }
+            ),
+            format!("Score: {}", snake.configuration().count()),
+        );
     }
 }
