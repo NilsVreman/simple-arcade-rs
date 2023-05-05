@@ -18,10 +18,9 @@ use crate::{
     systems::{menu_action, game_list_action, button_system, keybinding_system, text_update_system}
 };
 
-// This plugin manages the menu, with 5 different screens:
-// - a main menu with "New Game", "Settings", "Quit"
-// - a settings menu with two submenus and a back button
-// - two settings screen with a setting that can be set and a back button
+// This plugin manages the menu, with 2 different screens:
+// - a main menu with "Play *ActiveGamEState*", "More Games", "Quit"
+// - A game list menu with a list of games to choose from
 pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {

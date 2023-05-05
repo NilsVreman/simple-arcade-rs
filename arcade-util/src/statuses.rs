@@ -5,7 +5,7 @@ use bevy::prelude::States;
 pub enum ArcadeState {
     #[default]
     Menu,
-    Result,
+    Popup,
     PlayingSnake,
     PlayingMinesweeper,
 }

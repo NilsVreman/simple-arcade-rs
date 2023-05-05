@@ -4,7 +4,7 @@ members = [
     "simple-arcade",
     "arcade-util",
     "arcade-menu",
-    "arcade-result",
+    "arcade-popup",
     "snake",
     "minesweeper",
 ]

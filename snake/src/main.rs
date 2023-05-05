@@ -15,6 +15,7 @@ fn main() {
     App::new()
         .add_plugin(DefaultArcadePlugin)
         .add_plugin(SnakePlugin)
+        .add_plugin(ResultPlguin)
         .add_startup_system(set_playing_state)
         .run();
 }

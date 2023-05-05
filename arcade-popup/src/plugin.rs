@@ -16,30 +16,30 @@ use arcade_util::{ArcadeState, despawn_component};
 
 use crate::{
     systems::{
-        spawn_message_popup,
+        spawn_popup_window,
         button_system,
         update_text_fields,
     },
-    util::MessageResultPopup,
+    util::PopupWindow,
 };
 
 // This file should contain the Result popup plugin
-pub struct MessageResultPlugin;
+pub struct PopupPlugin;
 
-impl Plugin for MessageResultPlugin {
+impl Plugin for PopupPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_system(
-                spawn_message_popup
-                .in_schedule(OnEnter(ArcadeState::Result)))
+                spawn_popup_window
+                .in_schedule(OnEnter(ArcadeState::Popup)))
             .add_systems(
                 (
                     button_system,
                     update_text_fields,
                 )
-                .in_set(OnUpdate(ArcadeState::Result)))
+                .in_set(OnUpdate(ArcadeState::Popup)))
             .add_system(
-                despawn_component::<MessageResultPopup>
-                .in_schedule(OnExit(ArcadeState::Result)));
+                despawn_component::<PopupWindow>
+                .in_schedule(OnExit(ArcadeState::Popup)));
     }
 }

@@ -1,5 +1,5 @@
 [package]
-name = "arcade-result"
+name = "arcade-popup"
 version = "0.1.0"
 edition = "2021"
 authors = ["Nils Vreman <nils.vreman@gmail.com>"]

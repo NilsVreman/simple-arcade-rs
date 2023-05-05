@@ -39,16 +39,16 @@ use crate::{
         NORMAL_BUTTON_COLOR,
         PRESSED_BUTTON_COLOR,
         HOVERED_BUTTON_COLOR,
-        MessageResultPopup,
+        PopupWindow,
         ContinueButtonAction,
-        MessageField,
+        PopupField,
         FieldType,
-        MessageResult,
+        PopupMessage,
     }
 };
 
 // this function builds a MessageResultPopup entity based on the given Header and Message.
-pub fn spawn_message_popup(
+pub fn spawn_popup_window(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
@@ -63,7 +63,7 @@ pub fn spawn_message_popup(
         },
         ..default()
     })
-    .insert(MessageResultPopup)
+    .insert(PopupWindow)
     .with_children(|parent| {
         parent.spawn(NodeBundle {
             style: Style {
@@ -88,7 +88,7 @@ pub fn spawn_message_popup(
                     ..default()
                 }),
             )
-            .insert(MessageField(FieldType::Header));
+            .insert(PopupField(FieldType::Header));
             // Display the Message
             parent.spawn(TextBundle::from_section(
                 "Message Here",
@@ -102,7 +102,7 @@ pub fn spawn_message_popup(
                     ..default()
                 }),
             )
-            .insert(MessageField(FieldType::Body));
+            .insert(PopupField(FieldType::Body));
             // Display the Continue Button
             parent.spawn(ButtonBundle {
                 style: Style {
@@ -148,8 +148,8 @@ pub fn button_system(
 }
 // This system updates the Text fields.
 pub fn update_text_fields(
-    mut textfield_query: Query<(&mut Text, &MessageField)>,
-    message: Res<MessageResult>,
+    mut textfield_query: Query<(&mut Text, &PopupField)>,
+    message: Res<PopupMessage>,
 ) {
     for (mut text, fieldtype) in &mut textfield_query {
         text.sections[0].value = match fieldtype.0 {
