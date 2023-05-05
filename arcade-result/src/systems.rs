@@ -1,42 +1,50 @@
 // This file contains all the systems used, in particular for constructing and despawning entities
 
-use bevy::prelude::{
-    Commands,
-    Res,
-    AssetServer,
-    default,
-    NodeBundle,
-    BuildChildren,
-    TextBundle,
-    ButtonBundle,
-    With,
-    Button,
-    Query,
-    ResMut,
-    NextState
-};
-use bevy::text::TextStyle;
-use bevy::ui::{
-    Style,
-    Size,
-    Val,
-    UiRect,
-    JustifyContent,
-    AlignItems,
-    FlexDirection,
-    Interaction,
-    BackgroundColor
+use bevy::{
+    prelude::{
+        Commands,
+        Res,
+        AssetServer,
+        default,
+        NodeBundle,
+        BuildChildren,
+        TextBundle,
+        ButtonBundle,
+        With,
+        Button,
+        Query,
+        ResMut,
+        NextState
+    },
+    text::{TextStyle, Text},
+    ui::{
+        Style,
+        Size,
+        Val,
+        UiRect,
+        JustifyContent,
+        AlignItems,
+        FlexDirection,
+        Interaction,
+        BackgroundColor
+    }
 };
 
 use arcade_util::ArcadeState;
 
-use crate::components::{MessageResultPopup, ContinueButtonAction};
-use crate::util::{
-    TEXT_COLOR,
-    POPUP_COLOR,
-    NORMAL_BUTTON_COLOR,
-    PRESSED_BUTTON_COLOR,
-    HOVERED_BUTTON_COLOR
+use crate::{
+    util::{
+        TEXT_COLOR,
+        POPUP_COLOR,
+        NORMAL_BUTTON_COLOR,
+        PRESSED_BUTTON_COLOR,
+        HOVERED_BUTTON_COLOR,
+        MessageResultPopup,
+        ContinueButtonAction,
+        MessageField,
+        FieldType,
+        MessageResult,
+    }
 };
 
 // this function builds a MessageResultPopup entity based on the given Header and Message.
@@ -79,7 +87,8 @@ pub fn spawn_message_popup(
                     margin: UiRect::all(Val::Px(50.0)),
                     ..default()
                 }),
-            );
+            )
+            .insert(MessageField(FieldType::Header));
             // Display the Message
             parent.spawn(TextBundle::from_section(
                 "Message Here",
@@ -92,7 +101,8 @@ pub fn spawn_message_popup(
                     margin: UiRect::all(Val::Px(25.0)),
                     ..default()
                 }),
-            );
+            )
+            .insert(MessageField(FieldType::Body));
             // Display the Continue Button
             parent.spawn(ButtonBundle {
                 style: Style {
@@ -134,5 +144,17 @@ pub fn button_system(
             Interaction::Hovered => HOVERED_BUTTON_COLOR.into(),
             Interaction::None    => NORMAL_BUTTON_COLOR.into(),
         }
+    }
+}
+// This system updates the Text fields.
+pub fn update_text_fields(
+    mut textfield_query: Query<(&mut Text, &MessageField)>,
+    message: Res<MessageResult>,
+) {
+    for (mut text, fieldtype) in &mut textfield_query {
+        text.sections[0].value = match fieldtype.0 {
+            FieldType::Header => message.get_header().clone(),
+            FieldType::Body => message.get_body().clone(),
+        };
     }
 }
