@@ -48,14 +48,6 @@ impl Plugin for SnakePlugin {
                 )
                 .chain()
                 .in_schedule(OnEnter(ArcadeState::PlayingSnake)))
-            .add_systems(  // Things to run on exiting the game
-                (
-                    despawn_component::<SnakeBoard>,
-                    despawn_component::<Coord2D<i32>>,
-                    reset_snake,
-                )
-                .chain()
-                .in_schedule(OnExit(ArcadeState::PlayingSnake)))
             .add_systems(  // Things to run whilst the game is active
                 (
                     rotate_snake,
@@ -64,6 +56,14 @@ impl Plugin for SnakePlugin {
                     snake_game_over,
                 )
                 .chain()
-                .in_set(OnUpdate(ArcadeState::PlayingSnake)));
+                .in_set(OnUpdate(ArcadeState::PlayingSnake)))
+            .add_systems(  // Things to run on exiting the game
+                (
+                    despawn_component::<SnakeBoard>,
+                    despawn_component::<Coord2D<i32>>,
+                    reset_snake,
+                )
+                .chain()
+                .in_schedule(OnExit(ArcadeState::PlayingSnake)));
     }
 }

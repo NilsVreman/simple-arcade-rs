@@ -47,17 +47,16 @@ impl Plugin for MinesweeperPlugin {
             )
             .add_systems(
                 (
+                    reveal_coord,
+                    minesweeper_game_over,
+                ).chain()
+                .in_set(OnUpdate(ArcadeState::PlayingMinesweeper)))
+            .add_systems(
+                (
                     despawn_component::<Coord2D<i32>>,
                     despawn_component::<MinesweeperBoard>,
                     reset_minefield,
                 ).chain()
-                .in_schedule(OnExit(ArcadeState::PlayingMinesweeper))
-            )
-            .add_systems(
-                (
-                    reveal_coord,
-                    minesweeper_game_over,
-                ).chain()
-                .in_set(OnUpdate(ArcadeState::PlayingMinesweeper)));
+                .in_schedule(OnExit(ArcadeState::PlayingMinesweeper)));
     }
 }

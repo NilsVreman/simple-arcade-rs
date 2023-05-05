@@ -29,13 +29,17 @@ pub struct MessageResultPlugin;
 impl Plugin for MessageResultPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_message_popup.in_schedule(OnEnter(ArcadeState::Result)))
-            .add_system(despawn_component::<MessageResultPopup>.in_schedule(OnExit(ArcadeState::Result)))
+            .add_system(
+                spawn_message_popup
+                .in_schedule(OnEnter(ArcadeState::Result)))
             .add_systems(
                 (
                     button_system,
                     update_text_fields,
                 )
-                .in_set(OnUpdate(ArcadeState::Result)));
+                .in_set(OnUpdate(ArcadeState::Result)))
+            .add_system(
+                despawn_component::<MessageResultPopup>
+                .in_schedule(OnExit(ArcadeState::Result)));
     }
 }
