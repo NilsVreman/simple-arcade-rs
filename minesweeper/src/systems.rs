@@ -54,12 +54,26 @@ pub fn reveal_coord(
 // A function that uses the Minefields function "game_over" to set the next ArcadeState to
 // ArcadeState::Menu
 pub fn minesweeper_game_over(
+    commands: Commands,
     minefield: Res<Minefield>,
     mut next_state: ResMut<NextState<ArcadeState>>,
 ) {
     match minefield.game_over() {
-        MinesweeperStatus::MineTriggered | MinesweeperStatus::GameWon => {
-            next_state.set(ArcadeState::Menu);
+        MinesweeperStatus::MineTriggered => {
+            next_state.set(ArcadeState::Popup);
+            arcade_popup::spawn_popup(
+                commands,
+                "Game Over".to_string(),
+                "You triggered a mine".to_string(),
+            );
+        },
+        MinesweeperStatus::GameWon => {
+            next_state.set(ArcadeState::Popup);
+            arcade_popup::spawn_popup(
+                commands,
+                "Congratulations".to_string(),
+                "You cleared all the mines".to_string(),
+            );
         },
         MinesweeperStatus::InProgress => (),
     }

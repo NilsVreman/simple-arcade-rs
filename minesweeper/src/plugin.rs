@@ -18,17 +18,20 @@ use arcade_util::{
     Coord2D
 };
 
-use crate::board::{
-    spawn_board,
-    MinesweeperBoard,
-};
-use crate::systems::{
-    minesweeper_game_over,
-    reveal_coord,
-};
-use crate::minefield::{
-    Minefield,
-    spawn_minefield, reset_minefield,
+use crate::{
+    board::{
+        spawn_board,
+        MinesweeperBoard,
+    },
+    systems::{
+        minesweeper_game_over,
+        reveal_coord,
+    },
+    minefield::{
+        Minefield,
+        spawn_minefield,
+        reset_minefield,
+    }
 };
 
 pub struct MinesweeperPlugin;
