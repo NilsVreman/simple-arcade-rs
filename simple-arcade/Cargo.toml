@@ -9,6 +9,7 @@ authors = ["Nils Vreman <nils.vreman@gmail.com>"]
 [dependencies]
 arcade-util = { path = "../arcade-util" }
 arcade-menu = { path = "../arcade-menu" }
+arcade-popup = { path = "../arcade-popup" }
 snake = { path = "../snake" }
 minesweeper = { path = "../minesweeper" }
 bevy = { workspace = true }
