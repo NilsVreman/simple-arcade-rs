@@ -32,19 +32,17 @@ use bevy::{
 
 use arcade_util::ArcadeState;
 
-use crate::{
-    util::{
-        TEXT_COLOR,
-        POPUP_COLOR,
-        NORMAL_BUTTON_COLOR,
-        PRESSED_BUTTON_COLOR,
-        HOVERED_BUTTON_COLOR,
-        PopupWindow,
-        ContinueButtonAction,
-        PopupField,
-        FieldType,
-        PopupMessage,
-    }
+use crate::util::{
+    TEXT_COLOR,
+    POPUP_COLOR,
+    NORMAL_BUTTON_COLOR,
+    PRESSED_BUTTON_COLOR,
+    HOVERED_BUTTON_COLOR,
+    PopupWindow,
+    ContinueButtonAction,
+    PopupField,
+    FieldType,
+    PopupMessage,
 };
 
 // this function builds a MessageResultPopup entity based on the given Header and Message.

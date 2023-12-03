@@ -109,7 +109,6 @@ pub fn text_update_system(
                     text.sections[0].value = match game_state.as_ref().0 {
                         ActiveGameState::Snake => "Play Snake",
                         ActiveGameState::Minesweeper => "Play Minesweeper",
-                        _ => "Not yet implemented",
                     }.to_string();
                 }
             }
