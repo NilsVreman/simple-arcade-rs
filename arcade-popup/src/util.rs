@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{Color, Resource, World, Query, Component, Commands},
+    prelude::{Color, Resource, World, Component, Commands},
     ecs::system::Command
 };
 

@@ -1,15 +1,11 @@
-use bevy::{
-    prelude::{
-        Plugin,
-        App,
-        IntoSystemAppConfig,
-        OnEnter,
-        OnExit,
-        IntoSystemConfig,
-        OnUpdate,
-        IntoSystemConfigs,
-        IntoSystemAppConfigs,
-    },
+use bevy::prelude::{
+    Plugin,
+    App,
+    IntoSystemAppConfig,
+    OnEnter,
+    OnExit,
+    OnUpdate,
+    IntoSystemConfigs,
 };
 
 use arcade_util::{ArcadeState, despawn_component};
