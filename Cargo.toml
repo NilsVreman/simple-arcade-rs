@@ -7,6 +7,7 @@ members = [
     "arcade-popup",
     "snake",
     "minesweeper",
+    "pacman",
 ]
 
 [workspace.dependencies]

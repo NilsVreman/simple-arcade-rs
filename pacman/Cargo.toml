@@ -1,0 +1,12 @@
+[package]
+name = "pacman"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nils Vreman <nils.vreman@gmail.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+arcade-util = { path = "../arcade-util" }
+arcade-popup = { path = "../arcade-popup" }
+bevy = { workspace = true }

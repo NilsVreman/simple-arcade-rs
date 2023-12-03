@@ -8,6 +8,7 @@ pub enum ArcadeState {
     Popup,
     PlayingSnake,
     PlayingMinesweeper,
+    PlayingPacman,
 }
 
 // Status
@@ -16,6 +17,7 @@ pub enum ActiveGameState {
     #[default]
     Snake,
     Minesweeper,
+    Pacman,
 }
 
 impl ActiveGameState {
@@ -23,6 +25,7 @@ impl ActiveGameState {
         match self {
             ActiveGameState::Snake       => ArcadeState::PlayingSnake,
             ActiveGameState::Minesweeper => ArcadeState::PlayingMinesweeper,
+            ActiveGameState::Pacman      => ArcadeState::PlayingPacman,
         }
     }
 }
